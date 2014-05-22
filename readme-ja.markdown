@@ -47,7 +47,7 @@ browserifyの利用方法やどのように動作するのかについての詳�
 
 In node, there is a `require()` function for loading code from other files.
 
-Node.jsでは、`require()`関数を使って他のファイルからコードを呼び出すことができます。
+Nodeでは、`require()`関数を使って他のファイルからコードを呼び出すことができます。
 
 If you install a module with [npm](https://npmjs.org):
 
@@ -114,12 +114,17 @@ style of code import with `require()`, someone reading your program can easily
 tell where each piece of functionality came from. This approach scales much
 better as the number of modules in an application grows.
 
-`require()`の挙動は他のモジュール・システムとは異なっています。
+`require()`の挙動は他のモジュール・システムとは異なり、インポートするということは、モジュールそのものが宣言する、制御することができない
+グローバル、あるいはファイル毎のローカル構文スコープが公開される
+ということと似ています。  
+Node方式のインポートである`require()`は、誰かが自分の書いたプログラムを読む際に、それぞれの機能がどこから来たのかわかりやすくしてくれます。このアプローチはアプリケーションが大きくなるにつれて、モジュールが増えれば増えるほどスケールしやすくなります。
 
 ## exports
 
 To export a single thing from a file so that other files may import it, assign
 over the value at `module.exports`:
+
+他のファイルからインポートできるようにするために、あるファイルから1つの機能を公開する方法として、値を`module.exports`に代入する方法があります。
 
 ``` js
 module.exports = function (n) {
@@ -130,12 +135,16 @@ module.exports = function (n) {
 Now when some module `main.js` loads your `foo.js`, the return value of
 `require('./foo.js')` will be the exported function:
 
+こうすることで、`main.js`モジュールが`foo.js`を読み込む際に、`require('./foo.js')`の戻り値は公開された関数となります。
+
 ``` js
 var foo = require('./foo.js');
 console.log(foo(5));
 ```
 
 This program will print:
+
+このプログラムは以下を結果を表示します。
 
 ```
 555
@@ -145,11 +154,16 @@ You can export any kind of value with `module.exports`, not just functions.
 
 For example, this is perfectly fine:
 
+`module.exports`は関数だけではなく、どんな値でも公開することができます。  
+例として以下のようにすることも何ら問題がありません。
+
 ``` js
 module.exports = 555
 ```
 
 and so is this:
+
+もちろん、以下の場合も問題ありません。
 
 ``` js
 var numbers = [];
@@ -161,12 +175,16 @@ module.exports = numbers;
 There is another form of doing exports specifically for exporting items onto an
 object. Here, `exports` is used instead of `module.exports`:
 
+オブジェクトに値を公開するための他の方法もあります。`module.exports`の代わりに`exports`を利用している点に注目してください。
+
 ``` js
 exports.beep = function (n) { return n * 1000 }
 exports.boop = 555
 ```
 
 This program is the same as:
+
+このプログラムは以下と同じになります。
 
 ``` js
 module.exports.beep = function (n) { return n * 1000 }
@@ -178,8 +196,13 @@ empty object.
 
 Note however that you can't do:
 
+`module.exports`は`exports`同じものですが、`module.exports`では空のオブジェクトに対して値をセットしています。
+
+しかし、以下の様にはできない点に注意してください。
+
 ``` js
 // this doesn't work
+// 以下は動作しません
 exports = function (n) { return n * 1000 }
 ```
 
@@ -188,13 +211,18 @@ value for `exports` instead of `module.exports` masks the original reference.
 
 Instead if you are going to export a single item, always do:
 
+公開する値は`module`オブジェクトにあるため、`module.exports`ではなく、`exports`に対して新しい値を代入してしまうと、元々の参照を隠してしまうことになるためです。
+
 ``` js
 // instead
+// 代わりに
 module.exports = function (n) { return n * 1000 }
 ```
 
 If you're still confused, try to understand how modules work in
 the background:
+
+もしまだ混乱している場合、モジュールがシステムの裏側でどのように動作しているのかを理解するようにしてみてはどうでしょうか?
 
 ``` js
 var module = {
@@ -202,21 +230,27 @@ var module = {
 };
 
 // If you require a module, it's basically wrapped in a function
+// モジュールを`require()`する場合、基本的には関数で囲む、ということを意味します
 (function(module, exports) {
   exports = function (n) { return n * 1000 };
 }(module, module.exports))
 
 console.log(module.exports); // it's still an empty object :(
+// まだ空のオブジェクトです :(
 ```
 
 Most of the time, you will want to export a single function or constructor with
 `module.exports` because it's usually best for a module to do one thing.
+
+ほとんどの場合、`module.exports`を使って、ある1つの関数、またはコンストラクタを公開するはずです。なぜなら、モジュールはある1つのことだけをするべきだからです。
 
 The `exports` feature was originally the primary way of exporting functionality
 and `module.exports` was an afterthought, but `module.exports` proved to be much
 more useful in practice at being more direct, clear, and avoiding duplication.
 
 In the early days, this style used to be much more common:
+
+
 
 foo.js:
 
