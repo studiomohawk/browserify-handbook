@@ -332,7 +332,7 @@ section elsewhere in this document.
 
 バンドリングでできることは他にも数多くあります。詳しくは本ドキュメントのどこかにあるバンドリングについてのセクションを参照してください。
 
-## how browserify works
+## how browserify works browserifyの動作について
 
 Browserify starts at the entry point files that you give it and searches for any
 `require()` calls it finds using
@@ -340,9 +340,13 @@ Browserify starts at the entry point files that you give it and searches for any
 of the source code's
 [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
 
+まず、Browserifyは渡されたエントリー・ポイントとなるファイルのソースコードの[抽象構文木](https://ja.wikipedia.org/wiki/%E6%8A%BD%E8%B1%A1%E6%A7%8B%E6%96%87%E6%9C%A8)の[静的解析](http://npmjs.org/package/detective)を行い、`require()`を見つけ出します。
+
 For every `require()` call with a string in it, browserify resolves those module
 strings to file paths and then searches those file paths for `require()` calls
 recursively until the entire dependency graph is visited.
+
+
 
 Each file is concatenated into a single javascript file with a minimal
 `require()` definition that maps the statically-resolved names to internal IDs.
@@ -426,7 +430,7 @@ your development and production environments will be much more similar and less
 fragile. The CJS syntax is nicer and the ecosystem is exploding because of node
 and npm.
 
-You can seemlessly share code between node and the browser. You just need a
+You can seamlessly share code between node and the browser. You just need a
 build step and some tooling for source maps and auto-rebuilding.
 
 Plus, we can use node's module lookup algorithms to save us from version
@@ -576,6 +580,135 @@ Additionally, if browserify detects the use of `Buffer`, `process`, `global`,
 
 So even if a module does a lot of buffer and stream operations, it will probably
 just work in the browser, so long as it doesn't do any server IO.
+
+If you haven't done any node before, here are some examples of what each of
+those globals can do. Note too that these globals are only actually defined when
+you or some module you depend on uses them.
+
+## [Buffer](http://nodejs.org/docs/latest/api/buffer.html)
+
+In node all the file and network APIs deal with Buffer chunks. In browserify the
+Buffer API is provided by [buffer](https://www.npmjs.org/package/buffer), which
+uses augmented typed arrays in a very performant way with fallbacks for old
+browsers.
+
+Here's an example of using `Buffer` to convert a base64 string to hex:
+
+```
+var buf = Buffer('YmVlcCBib29w', 'base64');
+var hex = buf.toString('hex');
+console.log(hex);
+```
+
+This example will print:
+
+```
+6265657020626f6f70
+```
+
+## [process](http://nodejs.org/docs/latest/api/process.html#process_process)
+
+In node, `process` is a special object that handles information and control for
+the running process such as environment, signals, and standard IO streams.
+
+Of particular consequence is the `process.nextTick()` implementation that
+interfaces with the event loop.
+
+In browserify the process implementation is handled by the
+[process module](https://www.npmjs.org/package/process) which just provides
+`process.nextTick()` and little else.
+
+Here's what `process.nextTick()` does:
+
+```
+setTimeout(function () {
+    console.log('third');
+}, 0);
+
+process.nextTick(function () {
+    console.log('second');
+});
+
+console.log('first');
+```
+
+This script will output:
+
+```
+first
+second
+third
+```
+
+`process.nextTick(fn)` is like `setTimeout(fn, 0)`, but faster because
+`setTimeout` is artificially slower in javascript engines for compatibility reasons.
+
+## [global](http://nodejs.org/docs/latest/api/all.html#all_global)
+
+In node, `global` is the top-level scope where global variables are attached
+similar to how `window` works in the browser. In browserify, `global` is just an
+alias for the `window` object.
+
+## [__filename](http://nodejs.org/docs/latest/api/all.html#all_filename)
+
+`__filename` is the path to the current file, which is different for each file.
+
+To prevent disclosing system path information, this path is rooted at the
+`opts.basedir` that you pass to `browserify()`, which defaults to the
+[current working directory](https://en.wikipedia.org/wiki/Current_working_directory).
+
+If we have a `main.js`:
+
+``` js
+var bar = require('./foo/bar.js');
+
+console.log('here in main.js, __filename is:', __filename);
+bar();
+```
+
+and a `foo/bar.js`:
+
+``` js
+module.exports = function () {
+    console.log('here in foo/bar.js, __filename is:', __filename);
+};
+```
+
+then running browserify starting at `main.js` gives this output:
+
+```
+$ browserify main.js | node
+here in main.js, __filename is: /main.js
+here in foo/bar.js, __filename is: /foo/bar.js
+```
+
+## [__dirname](http://nodejs.org/docs/latest/api/all.html#all_dirname)
+
+`__dirname` is the directory of the current file. Like `__filename`, `__dirname`
+is rooted at the `opts.basedir`.
+
+Here's an example of how `__dirname` works:
+
+main.js:
+
+``` js
+require('./x/y/z/abc.js');
+console.log('in main.js __dirname=' + __dirname);
+```
+
+x/y/z/abc.js:
+
+``` js
+console.log('in abc.js, __dirname=' + __dirname);
+```
+
+output:
+
+```
+$ browserify main.js | node
+in abc.js, __dirname=/x/y/z
+in main.js __dirname=/
+```
 
 # transforms
 
@@ -1126,11 +1259,270 @@ browserify and some streaming html libraries.
 
 # testing in node and the browser
 
+Testing modular code is very easy! One of the biggest benefits of modularity is
+that your interfaces become much easier to instantiate in isolation and so it's
+easy to make automated tests.
 
 
-## tape
+People also make a huge fuss about "mocking" but it's usually not necessary if
 
-## mocha
+For example, if you have a library that does both IO and speaks a protocol,
+[consider separating the IO layer from the
+protocol](https://www.youtube.com/watch?v=g5ewQEuXjsQ#t=12m30)
+using an interface like [streams](https://github.com/substack/stream-handbook).
+
+Your code will be easier to test and reusable in different contexts that you
+didn't initially envision. This is a recurring theme of testing: if your code is
+hard to test, it is probably not modular enough or contains the wrong balance of
+abstractions. Testing should not be an afterthought, it should inform your
+whole design and it will help you to write better interfaces.
+
+## testing libraries
+
+### [tape](https://npmjs.org/package/tape)
+
+Tape was specifically designed from the start to work well in both node and
+browserify. Suppose we have an `index.js` with an async interface:
+
+``` js
+module.exports = function (x, cb) {
+    setTimeout(function () {
+	cb(x * 100);
+    }, 1000);
+};
+```
+
+Here's how we can test this module using [tape](https://npmjs.org/package/tape).
+Let's put this file in `test/beep.js`:
+
+``` js
+var test = require('tape');
+var hundreder = require('../');
+
+test('beep', function (t) {
+    t.plan(1);
+
+    hundreder(5, function (n) {
+	t.equal(n, 500, '5*100 === 500');
+    });
+});
+```
+
+Because the test file lives in `test/`, we can require the `index.js` in the
+parent directory by doing `require('../')`. `index.js` is the default place that
+node and browserify look for a module if there is no package.json in that
+directory with a `main` field.
+
+We can `require()` tape like any other library after it has been installed with
+`npm install tape`.
+
+The string `'beep'` is an optional name for the test.
+The 3rd argument to `t.equal()` is a completely optional description.
+
+The `t.plan(1)` says that we expect 1 assertion. If there are not enough
+assertions or too many, the test will fail. An assertion is a comparison
+like `t.equal()`. tape has assertion primitives for:
+
+* t.equal(a, b) - compare a and b strictly with `===`
+* t.deepEqual(a, b) - compare a and b recursively
+* t.ok(x) - fail if `x` is not truthy
+
+and more! You can always add an additional description argument.
+
+Running our module is very simple! To run the module in node, just run
+`node test/beep.js`:
+
+```
+$ node test/beep.js
+TAP version 13
+# beep
+ok 1 5*100 === 500
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+```
+
+The output is printed to stdout and the exit code is 0.
+
+To run our code in the browser, just do:
+
+```
+$ browserify test/beep.js > bundle.js
+```
+
+then plop `bundle.js` into a `<script>` tag:
+
+```
+<script src="bundle.js"></script>
+```
+
+and load that html in a browser. The output will be in the debug console which
+you can open with F12, ctrl-shift-j, or ctrl-shift-k depending on the browser.
+
+This is a bit cumbersome to run our tests in a browser, but you can install the
+`testling` command to help. First do:
+
+```
+npm install -g testling
+```
+
+And now just do `browserify test/beep.js | testling`:
+
+```
+$ browserify test/beep.js | testling
+
+TAP version 13
+# beep
+ok 1 5*100 === 500
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+```
+
+`testling` will launch a real browser headlessly on your system to run the tests.
+
+Now suppose we want to add another file, `test/boop.js`:
+
+``` js
+var test = require('tape');
+var hundreder = require('../');
+
+test('fraction', function (t) {
+    t.plan(1);
+
+    hundreder(1/20, function (n) {
+	t.equal(n, 5, '1/20th of 100');
+    });
+});
+
+test('negative', function (t) {
+    t.plan(1);
+
+    hundreder(-3, function (n) {
+	t.equal(n, -300, 'negative number');
+    });
+});
+```
+
+Here our test has 2 `test()` blocks. The second test block won't start to
+execute until the first is completely finished, even though it is asynchronous.
+You can even nest test blocks by using `t.test()`.
+
+We can run `test/boop.js` with node directly as with `test/beep.js`, but if we
+want to run both tests, there is a minimal command-runner we can use that comes
+with tape. To get the `tape` command do:
+
+```
+npm install -g tape
+```
+
+and now you can run:
+
+```
+$ tape test/*.js
+TAP version 13
+# beep
+ok 1 5*100 === 500
+# fraction
+ok 2 1/20th of 100
+# negative
+ok 3 negative number
+
+1..3
+# tests 3
+# pass  3
+
+# ok
+```
+
+and you can just pass `test/*.js` to browserify to run your tests in the
+browser:
+
+```
+$ browserify test/* | testling
+
+TAP version 13
+# beep
+ok 1 5*100 === 500
+# fraction
+ok 2 1/20th of 100
+# negative
+ok 3 negative number
+
+1..3
+# tests 3
+# pass  3
+
+# ok
+```
+
+Putting together all these steps, we can configure `package.json` with a test
+script:
+
+``` json
+{
+  "name": "hundreder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "tape": "^2.13.1",
+    "testling": "^1.6.1"
+  },
+  "scripts": {
+    "test": "tape test/*.js",
+    "test-browser": "browserify test/*.js | testlingify"
+  }
+}
+```
+
+Now you can do `npm test` to run the tests in node and `npm run test-browser` to
+run the tests in the browser. You don't need to worry about installing commands
+with `-g` when you use `npm run`: npm automatically sets up the `$PATH` for all
+packages installed locally to the project.
+
+If you have some tests that only run in node and some tests that only run in the
+browser, you could have subdirectories in `test/` such as `test/server` and
+`test/browser` with the tests that run both places just in `test/`. Then you
+could just add the relevant directory to the globs:
+
+``` json
+{
+  "name": "hundreder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "tape": "^2.13.1",
+    "testling": "^1.6.1"
+  },
+  "scripts": {
+    "test": "tape test/*.js test/server/*.js",
+    "test-browser": "browserify test/*.js test/browser/*.js | testlingify"
+  }
+}
+```
+
+and now server-specific and browser-specific tests will be run in addition to
+the common tests.
+
+If you want something even slicker, check out
+[prova](https://www.npmjs.org/package/prova) once you have gotten the basic
+concepts.
+
+### assert
+
+The core assert module is a fine way to write simple tests too, although it can
+sometimes be tricky to ensure that the correct number of callbacks have fired.
+
+You can solve that problem with tools like
+[macgyver](https://www.npmjs.org/package/macgyver) but it is appropriately DIY.
+
+### mocha
 
 ## code coverage
 
