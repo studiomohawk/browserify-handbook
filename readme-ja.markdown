@@ -250,7 +250,9 @@ more useful in practice at being more direct, clear, and avoiding duplication.
 
 In the early days, this style used to be much more common:
 
+`exports`は元々は機能を公開するための主な機構で、`module.exports`は後付でした。しかし、`module.exports`はより直接的で、明確で、重複を避けることができ、実践において高い利便性を持っています。
 
+Nodeの黎明期には以下の様なスタイルをよく見かけることができました。
 
 foo.js:
 
@@ -268,6 +270,8 @@ console.log(foo.foo(5));
 but note that the `foo.foo` is a bit superfluous. Using `module.exports` it
 becomes more clear:
 
+`foo.foo`は少々余分です。そこで`module.exports`を利用するとより明確にすることができます。
+
 foo.js:
 
 ``` js
@@ -281,11 +285,13 @@ var foo = require('./foo.js');
 console.log(foo(5));
 ```
 
-## bundling for the browser
+## bundling for the browser ブラウザで利用できるようにバンドルする
 
 To run a module in node, you've got to start from somewhere.
 
 In node you pass a file to the `node` command to run a file:
+
+まずは千里の道も一歩から、Nodeでモジュールを実行するためには、次の様に、`node`コマンドにファイルを渡します。
 
 ```
 $ node robot.js
@@ -296,12 +302,17 @@ In browserify, you do this same thing, but instead of running the file, you
 generate a stream of concatenated javascript files on stdout that you can write
 to a file with the `>` operator:
 
+browserifyでも同じ事をします。ただ、ファイルを実行する代わりに、stdoutに結合したJavaScriptを生成します。そうすることで、`>`オペレータを使ってファイルに書き込めるようになります。
+
 ```
 $ browserify robot.js > bundle.js
 ```
 
 Now `bundle.js` contains all the javascript that `robot.js` needs to work.
 Just plop it into a single script tag in some html:
+
+これで、`bundle.js`には`robot.js`を実行するのに必要な全てのJavaScriptが含まれることになります。  
+あとはただどこかのHTML内のスクリプトタグからぽいっとリンクするだけです。
 
 ``` html
 <html>
@@ -314,8 +325,12 @@ Just plop it into a single script tag in some html:
 Bonus: if you put your script tag right before the `</body>`, you can use all of
 the dom elements on the page without waiting for a dom onready event.
 
+おまけ: スクリプトタグを`</body>`の直前に設置すると、DOMの`onReady`イベントを待つ必要なく、すべてのDOM要素を利用できます。
+
 There are many more things you can do with bundling. Check out the bundling
 section elsewhere in this document.
+
+バンドリングでできることは他にも数多くあります。詳しくは本ドキュメントのどこかにあるバンドリングについてのセクションを参照してください。
 
 ## how browserify works
 
