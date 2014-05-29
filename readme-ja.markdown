@@ -346,29 +346,41 @@ For every `require()` call with a string in it, browserify resolves those module
 strings to file paths and then searches those file paths for `require()` calls
 recursively until the entire dependency graph is visited.
 
-
+それからBrowserifyは、`require()`の引数として渡した文字列のファイルパスからモジュールを見つけ、さらに、そのモジュール内に記述してある`require()`でも同様の処理を行います。この処理はすべての依存グラフを解決するまで繰り返されます。
 
 Each file is concatenated into a single javascript file with a minimal
 `require()` definition that maps the statically-resolved names to internal IDs.
 
+それぞれのファイルは解析し、解決したモジュール名を内部的なIDに紐付ける、最低限必要な`require()`の定義と共に、1つのJavaScriptファイルに結合されます。
+
 This means that the bundle you generate is completely self-contained and has
 everything your application needs to work with a pretty negligible overhead.
+
+こうすることで生成したバンドルは、完全に自己完結し、ごくわずかなオーバーヘッドで、アプリケーションとして動作するのに必要なすべてことを実行できるようになります。
 
 For more details about how browserify works, check out the compiler pipeline
 section of this document.
 
-## why concatenate
+Browserifyがどのように動作するのかについてより詳しい情報が必要な場合は、本ドキュメント内のコンパイラ・パイプラインのセクションを参照してください。
+
+## why concatenate なぜ結合するのか
 
 Browserify is a build step that runs on the server. It generates a single bundle
 file that has everything in it.
 
+Browserifyはサーバ上で実行されるビルド・ステップです。すべての機能が詰まった1つのバンドルファイルを生成します。
+
 Here are some other ways of implementing module systems for the browser and what
 their strengths and weaknesses are:
+
+ブラウザ内でモジュールシステムを実装する他の方法について、そして、それらの強みと弱みについて、ここから見ていきましょう。
 
 ### window globals
 
 Instead of a module system, each file defines properties on the window global
 object or develops an internal namespacing scheme.
+
+モジュールシステムの代わりに、それぞれのファイルにグローバルオブジェクトのプロパティを定義したり、内部的な名前空間スキームを開発する方法があります。
 
 This approach does not scale well without extreme diligence since each new file
 needs an additional `<script>` tag in all of the html pages where the
@@ -376,12 +388,20 @@ application will be rendered. Further, the files tend to be very order-sensitive
 because some files need to be included before other files the expect globals to
 already be present in the environment.
 
+この手法でスケールするのは、相当の努力が必要になります。  
+新しいファイルを作成する度に、アプリケーションを動作させるすべてのHTMLページに追加の`<script>`タグが必要になります。さらにそれらのファイルは、グローバルオブジェクトへの定義が存在することが必須になるため、どこかのファイルを呼び出す前に別のファイルを呼び出す必要があったりと、読み込み順に対して細心の注意が必要になります。
+
 It can be difficult to refactor or maintain applications built this way.
 On the plus side, all browsers natively support this approach and no server-side
 tooling is required.
 
+この方法でビルドしてしまうと、リファクタを行うのにも、アプリケーションをメンテナンスしつづけることも難しくなりやすいでしょう。  
+利点としては、この方法はすべてのブラウザでサポートされ、サーバサイド側のツールも必要としない点が上げられます。
+
 This approach tends to be very slow since each `<script>` tag initiates a
 new round-trip http request.
+
+また、この方法は`<script>`一つ一つが新たなHTTPリクエストのラウンド・トリップを必要とするため、ネットワーク・パフォーマンスも悪くなる傾向になります。
 
 ### concatenate
 
@@ -390,16 +410,25 @@ server. The code is still order-sensitive and difficult to maintain, but loads
 much faster because only a single http request for a single `<script>` tag needs
 to execute.
 
+グローバルオブジェクトの手法の代わりに、すべてのスクリプトをサーバが読み込む前に結合する方法もあります。コードそのものは、読み込み順に対して注意が必要なままで、メンテナンスも難しいままですが、HTTPリクエストは1つでよくなるため、ネットワーク・パフォーマンスは改善します。
+
 Without source maps, exceptions thrown will have offsets that can't be easily
 mapped back to their original files.
+
+Source mapsを利用していない場合、例外処理が投げられた場合に、オリジナルファイルと異なる行番号を知らせるため、エラーの発見が難しくなります。
 
 ### AMD
 
 Instead of using `<script>` tags, every file is wrapped with a `define()`
 function and callback. [This is AMD](http://requirejs.org/docs/whyamd.html). 
 
+`<script>`の代わりに、すべてのファイルを`define()`関数とコールバックで囲む方法が[AMDです](http://requirejs.org/docs/whyamd.html)。
+
 The first argument is an array of modules to load that maps to each argument
 supplied to the callback. Once all the modules are loaded, the callback fires.
+
+第一引数にはコールバックに渡される引数にそれぞれマップされる読み込むモジュールの配列を指定します。  
+すべてのモジュールが読み込まれるとコールバックが実行されます。
 
 ``` js
 define(['jquery'] , function ($) {
@@ -410,16 +439,24 @@ define(['jquery'] , function ($) {
 You can give your module a name in the first argument so that other modules can
 include it.
 
+名前を付けたモジュールを第一引数に渡すこともできます。そうすることで、他のモジュールも含めることができます。
+
 There is a commonjs sugar syntax that stringifies each callback and scans it for
 `require()` calls
 [with a regexp](https://github.com/jrburke/requirejs/blob/master/require.js#L17).
 
+CommonJS風に記述するためのシンタックス・シュガーも用意されています。ここでは[正規表現](https://github.com/jrburke/requirejs/blob/master/require.js#L17)を使って、それぞれのコールバック内の`require()`をマッチさせています。
+
 Code written this way is much less order-sensitive than concatenation or globals
 since the order is resolved by explicit dependency information.
+
+このように書かれたコードは、明示的な依存関係の情報を使って呼び出しの順序を解決するため、単純な結合や、グローバル・プロパティの方法と比べるとはるかに呼び出し順についての懸念が薄れます。
 
 For performance reasons, most of the time AMD is bundled server-side into a
 single file and during development it is more common to actually use the
 asynchronous feature of AMD.
+
+パフォーマンスを向上させるため、大抵AMDはサーバサイドで1つのファイルにバンドルされ利用されます。開発中はAMDが持つ非同期の機能を利用することが多いです。
 
 ### bundling commonjs server-side
 
@@ -430,17 +467,27 @@ your development and production environments will be much more similar and less
 fragile. The CJS syntax is nicer and the ecosystem is exploding because of node
 and npm.
 
+パフォーマンスを向上させるためにビルド・ステップを必要とし、利便性の向上のためにシンタックス・シュガーがあるのなら、どうしてAMDを使わずに、CommonJSでバンドルしないのでしょうか?  
+ツールを使ってモジュールの依存関係を解消し、読み込み順の問題に対応することもできるし、開発とプロダクションの環境を似たものに、そしてより強固にすることも可能です。  
+CommonJSのシンタックスの方が素敵ですし、Nodeとnpmのおかげでエコシスエムは爆発的に成長しています。
+
 You can seamlessly share code between node and the browser. You just need a
 build step and some tooling for source maps and auto-rebuilding.
+
+Nodeとブラウザのコードをシームレスに共有することもできます。ビルド・ステップと、Souce mapsと自動再ビルドに必要ないくつかのツールが必要になるだけです。
 
 Plus, we can use node's module lookup algorithms to save us from version
 mismatch insanity so that we can have multiple conflicting versions of different
 required packages in the same application and everything will still work.
 
-# development
+さらに、Nodeが持つモジュール・ルックアップのアルゴリズムを利用し、バージョンのミスマッチに心乱すこともなくなるでしょう。同じアプリケーション内で複数の異なるバージョンの衝突し合うパッケージが存在したとしても、問題なく動作するわけです。
+
+# development 開発
 
 Concatenation has some downsides, but these can be very adequately addressed
 with development tooling.
+
+ファイルの結合にはいくつかの問題点がありますが、それらは開発ツールを使うことで適切に対処できます。
 
 ## source maps
 
@@ -449,10 +496,14 @@ source maps. Source maps tell the browser to convert line and column offsets for
 exceptions thrown in the bundle file back into the offsets and filenames of the
 original sources.
 
+BrowserifyでSource Mapsを有効化するには`--debug`または`-d`フラグ、そして`opts.debug`パラメタを利用します。Source Mapsを利用することで結合後のファイルに対して元となるソースのファイル名や例外処理が発生した行番号などを関連づけることができます。
+
 ## auto-recompile
 
 Running a command to recompile your bundle every time can be slow and tedious.
 Luckily there are many tools to solve this problem.
+
+毎回バンドルを生成するコマンドを叩くは時間がかかるし、面倒です。しかし、この問題に対する解決を行うツールがいくつもあります。
 
 ### [watchify](https://npmjs.org/package/watchify)
 
@@ -462,7 +513,11 @@ of the files in your dependency graph for changes. When you modify a file, the
 new bundle file will be written much more quickly than the first time because of
 aggressive caching.
 
+`watchify`と`browserify`とは交互に用いることができますが、`watchify`では1度だけファイルを出力するのではなく、バンドルファイルを生成するのに加えて、依存グラフ上にあるすべてのファイルの変更を関しします。それらのファイルを編集すると新しいバンドルファイルが生成されますが、積極的にキャッシュをしているためファイル生成を早く行うことができます。
+
 You can use `-v` to print a message every time a new bundle is written:
+
+`-v`パラメタを渡すと新しいバンドルが生成される度にメッセージを表示できます。
 
 ```
 $ watchify browser.js -d -o static/bundle.js -v
@@ -477,6 +532,8 @@ $ watchify browser.js -d -o static/bundle.js -v
 Here is a handy configuration for using watchify and browserify with the
 package.json "scripts" field:
 
+次の設定はwatchifyとbrowserifyをpackage.json "scripts"で利用できるものです。
+
 ``` json
 {
   "build": "browserify browser.js -o static/bundle.js",
@@ -489,6 +546,10 @@ during development do `npm run watch`.
 
 [Learn more about `npm run`](http://substack.net/task_automation_with_npm_run).
 
+プロダクション用にバンドルを生成するのには`npm run build`を利用し、開発中にファイルの状態を監視するには、`npm run watch`を利用します。
+
+[`npm run`について詳しくはこちらから](http://substack.net/task_automation_with_npm_run)。
+
 ### beefy
 
 If you would rather spin up a web server that automatically recompiles your code
@@ -496,11 +557,17 @@ when you modify it, check out [beefy](http://didact.us/beefy/).
 
 Just give beefy an entry file:
 
+ファイルの修正をした際に自動的にバンドルのビルドを実行するウェブサーバを必要としているのであれば、[beefy](http://didact.us/beefy/)をチェックして見てください。
+
+単にbeefyに対してファイルを渡してあげればいいだけです。
+
 ```
 beefy main.js
 ```
 
 and it will set up shop on an http port.
+
+こうすることで、HTTPポートの開設できます。
 
 ### browserify-middleware, enchilada
 
