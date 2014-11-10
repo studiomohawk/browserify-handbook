@@ -31,8 +31,8 @@ packages on npm are intended for use in just the browser.
 [npm is for all javascript](http://maxogden.com/node-packaged-modules.html),
 front or backend alike.
 
-多くの人がNodeとブラウザの両方で動作するモジュールをnpmで公開し初めていたり、npm上にブラウザでしか動作しないパッケージも増えてきています。  
-[npmはすべてのJavaScriptのためにあります](http://maxogden.com/node-packaged-modules.html)、それはフロントエンドも、バックエンドも関係なくということです。
+多くの人がNodeとブラウザの両方で動作するモジュールをnpmで公開し初めていたり、npm上にブラウザでしか動作しないパッケージも増えてきています。
+それはフロントエンドも、バックエンドも関係なく[npmはすべてのJavaScriptのためにあります](http://maxogden.com/node-packaged-modules.html)。
 
 # node packaged modules
 
@@ -41,7 +41,7 @@ important to first understand how the
 [node-flavored version](http://nodejs.org/docs/latest/api/modules.html)
 of the commonjs module system works.
 
-browserifyの利用方法やどのように動作するのかについての詳しく紹介する前に、[Nodeで採用されている](http://nodejs.org/docs/latest/api/modules.html)、CommonJSモジュールについて理解する必要があります。
+browserifyの利用方法やどのように動作するのかについて詳しく紹介する前に、[Nodeで採用されている](http://nodejs.org/docs/latest/api/modules.html)、CommonJSモジュールについて理解する必要があります。
 
 ## require
 
@@ -69,7 +69,7 @@ console.log(uniq(nums));
 
 The output of this program when run with node is:
 
-Node.jsでこのプログラムを実行すると以下の様に出力されます。
+Nodeでこのプログラムを実行すると以下の様に出力されます。
 
 ```
 $ node nums.js
@@ -88,7 +88,7 @@ console.log(foo(4));
 
 If `foo.js` was in the parent directory, you could use `../foo.js` instead:
 
-`foo.js`が親ディレクトリにある場合、代わりに`../foo.js`という様に記述します。
+`foo.js`が親ディレクトリにある場合、代わりに`../foo.js`という様にも記述できます。
 
 ``` js
 var foo = require('../foo.js');
@@ -196,7 +196,7 @@ empty object.
 
 Note however that you can't do:
 
-`module.exports`は`exports`同じものですが、`module.exports`では空のオブジェクトに対して値をセットしています。
+`module.exports`は`exports`と同じものですが、`module.exports`では空のオブジェクトに対して値をセットしています。
 
 しかし、以下の様にはできない点に注意してください。
 
@@ -212,6 +212,8 @@ value for `exports` instead of `module.exports` masks the original reference.
 Instead if you are going to export a single item, always do:
 
 公開する値は`module`オブジェクトにあるため、`module.exports`ではなく、`exports`に対して新しい値を代入してしまうと、元々の参照を隠してしまうことになるためです。
+
+1つのアイテムを公開したい場合は、必ず以下の様にします。
 
 ``` js
 // instead
@@ -351,7 +353,7 @@ recursively until the entire dependency graph is visited.
 Each file is concatenated into a single javascript file with a minimal
 `require()` definition that maps the statically-resolved names to internal IDs.
 
-それぞれのファイルは解析し、解決したモジュール名を内部的なIDに紐付ける、最低限必要な`require()`の定義と共に、1つのJavaScriptファイルに結合されます。
+それぞれのファイルは解析し解決したモジュール名を内部的なIDに紐付け、最低限必要な`require()`の定義と共に、1つのJavaScriptファイルに結合されます。
 
 This means that the bundle you generate is completely self-contained and has
 everything your application needs to work with a pretty negligible overhead.
@@ -415,7 +417,7 @@ to execute.
 Without source maps, exceptions thrown will have offsets that can't be easily
 mapped back to their original files.
 
-Source mapsを利用していない場合、例外処理が投げられた場合に、オリジナルファイルと異なる行番号を知らせるため、エラーの発見が難しくなります。
+しかし、Source mapsを利用していない場合、例外処理が投げられた場合に、オリジナルファイルと異なる行番号を知らせるため、エラーの発見が難しくなります。
 
 ### AMD
 
@@ -445,12 +447,12 @@ There is a commonjs sugar syntax that stringifies each callback and scans it for
 `require()` calls
 [with a regexp](https://github.com/jrburke/requirejs/blob/master/require.js#L17).
 
-CommonJS風に記述するためのシンタックス・シュガーも用意されています。ここでは[正規表現](https://github.com/jrburke/requirejs/blob/master/require.js#L17)を使って、それぞれのコールバック内の`require()`をマッチさせています。
+CommonJS風に記述するための糖衣構文も用意されています。ここでは[正規表現](https://github.com/jrburke/requirejs/blob/master/require.js#L17)を使って、それぞれのコールバック内の`require()`をマッチさせています。
 
 Code written this way is much less order-sensitive than concatenation or globals
 since the order is resolved by explicit dependency information.
 
-このように書かれたコードは、明示的な依存関係の情報を使って呼び出しの順序を解決するため、単純な結合や、グローバル・プロパティの方法と比べるとはるかに呼び出し順についての懸念が薄れます。
+このように書かれたコードは、明示的な依存関係の情報を使って呼び出しの順序を解決するため、単純な結合や、グローバル・プロパティを使った方法と比べるとはるかに呼び出し順についての懸念が薄れます。
 
 For performance reasons, most of the time AMD is bundled server-side into a
 single file and during development it is more common to actually use the
@@ -467,8 +469,8 @@ your development and production environments will be much more similar and less
 fragile. The CJS syntax is nicer and the ecosystem is exploding because of node
 and npm.
 
-パフォーマンスを向上させるためにビルド・ステップを必要とし、利便性の向上のためにシンタックス・シュガーがあるのなら、どうしてAMDを使わずに、CommonJSでバンドルしないのでしょうか?  
-ツールを使ってモジュールの依存関係を解消し、読み込み順の問題に対応することもできるし、開発とプロダクションの環境を似たものに、そしてより強固にすることも可能です。  
+パフォーマンスを向上させるためにビルド・ステップを必要とし、利便性の向上のために糖衣構文があるのなら、どうしてAMDの代わりに、CommonJSでバンドルしないのでしょうか?
+ツールを使ってモジュールの依存関係を解消し、読み込み順の問題に対応することもできるし、開発とプロダクションの環境を似たものに、そしてより強固にすることも可能です。
 CommonJSのシンタックスの方が素敵ですし、Nodeとnpmのおかげでエコシスエムは爆発的に成長しています。
 
 You can seamlessly share code between node and the browser. You just need a
@@ -513,7 +515,7 @@ of the files in your dependency graph for changes. When you modify a file, the
 new bundle file will be written much more quickly than the first time because of
 aggressive caching.
 
-`watchify`と`browserify`とは交互に用いることができますが、`watchify`では1度だけファイルを出力するのではなく、バンドルファイルを生成するのに加えて、依存グラフ上にあるすべてのファイルの変更を関しします。それらのファイルを編集すると新しいバンドルファイルが生成されますが、積極的にキャッシュをしているためファイル生成を早く行うことができます。
+`watchify`と`browserify`とは交互に用いることができますが、`watchify`では1度だけファイルを出力するのではなく、バンドルファイルを生成するのに加えて、依存グラフ上にあるすべてのファイルの変更を監視します。それらのファイルを編集すると新しいバンドルファイルが生成されますが、積極的にキャッシュをしているためファイル生成を早く行うことができます。
 
 You can use `-v` to print a message every time a new bundle is written:
 
@@ -532,7 +534,7 @@ $ watchify browser.js -d -o static/bundle.js -v
 Here is a handy configuration for using watchify and browserify with the
 package.json "scripts" field:
 
-次の設定はwatchifyとbrowserifyをpackage.json "scripts"で利用できるものです。
+次の設定はwatchifyとbrowserifyをpackage.jsonの"scripts"で利用できるようにするものです。
 
 ``` json
 {
@@ -575,13 +577,19 @@ If you are using express, check out
 [browserify-middleware](https://www.npmjs.org/package/browserify-middleware)
 or [enchilada](https://www.npmjs.org/package/enchilada).
 
+Expressを利用している場合は、[browserify-middleware](https://www.npmjs.org/package/browserify-middleware)か[enchilada](https://www.npmjs.org/package/enchilada)をチェックしてみてください。
+
 They both provide middleware you can drop into an express application for
 serving browserify bundles.
+
+両者はExpressアプリケーションでbrowserifyバンドルを利用するためのミドルウェアです。
 
 ## using the api directly
 
 You can just use the API directly from an ordinary `http.createServer()` for
 development too:
+
+開発用であれば、`http.createServer()`でAPIを直接利用する方法もあります。
 
 ``` js
 var browserify = require('browserify');
@@ -603,6 +611,8 @@ http.createServer(function (req, res) {
 If you use grunt, you'll probably want to use the
 [grunt-browserify](https://www.npmjs.org/package/grunt-browserify) plugin.
 
+Gruntを採用しているのであれば、[grunt-browserify](https://www.npmjs.org/package/grunt-browserify)プラグインを利用できます。
+
 ## gulp
 
 If you use gulp, you should use the browserify API directly.
@@ -611,11 +621,16 @@ Here is
 [a guide for getting started](http://viget.com/extend/gulp-browserify-starter-faq)
 with gulp and browserify.
 
+Gulpを採用している場合はbrowserifyのAPIを直接利用してください。
+Gulpでbrowserifyを利用する場合の[ガイド](http://viget.com/extend/gulp-browserify-starter-faq)はこちらです。
+
 # builtins
 
 In order to make more npm modules originally written for node work in the
 browser, browserify provides many browser-specific implementations of node core
 libraries:
+
+ブラウザでもNode用に書かれたnpmモジュールを動作させるために、browserifyはいくつかのNodeコアモジュールのブラウザ実装版を提供しています。
 
 * [assert](https://npmjs.org/package/assert)
 * [buffer](https://npmjs.org/package/buffer)
@@ -642,15 +657,24 @@ libraries:
 events, stream, url, path, and querystring are particularly useful in a browser
 environment.
 
+eventsやstream、url、path、そしてquerystringはブラウザ環境でも特に便利なモジュールです。
+
 Additionally, if browserify detects the use of `Buffer`, `process`, `global`,
 `__filename`, or `__dirname`, it will include a browser-appropriate definition.
+
+さらに、browserifyは`Buffer`、`process`、`global`、
+`__filename`、 または`__dirname`を発見すると、ブラウザ環境において最適な定義をインクルードします。
 
 So even if a module does a lot of buffer and stream operations, it will probably
 just work in the browser, so long as it doesn't do any server IO.
 
+モジュールがbufferやstreamの操作を行っていたとしても、サーバーに対して読み込み、書き込みを行っていないのであれば、ブラウザでもおそらく動作するでしょう。
+
 If you haven't done any node before, here are some examples of what each of
 those globals can do. Note too that these globals are only actually defined when
 you or some module you depend on uses them.
+
+Nodeの経験がない方は以下にいくつかの例を紹介します。これらのコアモジュールも他のモジュールと同様に、自らのモジュールか、依存しているモジュールで利用されている場合にのみ定義されるものであることに注意してください。
 
 ## [Buffer](http://nodejs.org/docs/latest/api/buffer.html)
 
@@ -659,7 +683,11 @@ Buffer API is provided by [buffer](https://www.npmjs.org/package/buffer), which
 uses augmented typed arrays in a very performant way with fallbacks for old
 browsers.
 
+NodeではすべてのファイルとネットワークのAPIはBufferチャンクを扱います。BrowserifyではBuffer APIは[buffer](https://www.npmjs.org/package/buffer)モジュールから供給されています。このモジュールはパフォーマンスの向上と古いブラウザへのフォールバックを行った型付き配列を利用しています。
+
 Here's an example of using `Buffer` to convert a base64 string to hex:
+
+以下は`Buffer`を利用してbase64の文字列をhexに変換する例です。
 
 ```
 var buf = Buffer('YmVlcCBib29w', 'base64');
@@ -668,6 +696,7 @@ console.log(hex);
 ```
 
 This example will print:
+例は以下の出力を行います。
 
 ```
 6265657020626f6f70
@@ -678,14 +707,22 @@ This example will print:
 In node, `process` is a special object that handles information and control for
 the running process such as environment, signals, and standard IO streams.
 
+Nodeにおける`process`は、環境や、シグナル、標準入出力などの実行中のプロセスに関する情報とその操作を制御する特別なオブジェクトです。
+
 Of particular consequence is the `process.nextTick()` implementation that
 interfaces with the event loop.
+
+`process.nextTick()`の実装におけるイベント・ループを使ったインターフェイスはとりわけ重要です。
 
 In browserify the process implementation is handled by the
 [process module](https://www.npmjs.org/package/process) which just provides
 `process.nextTick()` and little else.
 
+Browserifyにおける`process`の実装は[process module](https://www.npmjs.org/package/process)で制御しています。現時点では`process.nextTick()`以外の実装はほとんどしていません。
+
 Here's what `process.nextTick()` does:
+
+以下で`process.nextTick()`が何をしているかを例示します。
 
 ```
 setTimeout(function () {
@@ -701,6 +738,8 @@ console.log('first');
 
 This script will output:
 
+このスクリプトは以下を出力します。
+
 ```
 first
 second
@@ -710,21 +749,31 @@ third
 `process.nextTick(fn)` is like `setTimeout(fn, 0)`, but faster because
 `setTimeout` is artificially slower in javascript engines for compatibility reasons.
 
+`process.nextTick(fn)`は`setTimeout(fn, 0)`と同じですが、`setTimeout`は互換性を保つためJavaScriptのエンジン側で人為的に遅延をさせているため、`process.nextTick(fn)`のほうが高速です。
+
 ## [global](http://nodejs.org/docs/latest/api/all.html#all_global)
 
 In node, `global` is the top-level scope where global variables are attached
 similar to how `window` works in the browser. In browserify, `global` is just an
 alias for the `window` object.
 
+Nodeにおける`global`はグローバル変数を格納する最上レベルのスコープとなります。これはブラウザにおける`window`と似ています。Browserifyでは、`global`は`window`オブジェクトのエイリアスです。
+
 ## [__filename](http://nodejs.org/docs/latest/api/all.html#all_filename)
 
 `__filename` is the path to the current file, which is different for each file.
+
+`__filename`は現在のファイルのパスを示し、ファイルによって異なります。
 
 To prevent disclosing system path information, this path is rooted at the
 `opts.basedir` that you pass to `browserify()`, which defaults to the
 [current working directory](https://en.wikipedia.org/wiki/Current_working_directory).
 
+システム全体のパス情報を公開してしまわないように、このパスは`browserify()`に渡す、`opts.basedir`をルートとします。なお、`opts.basedir`はデフォルトでは[カレントディレクトリ](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%88%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA)となります。
+
 If we have a `main.js`:
+
+`main.js`に以下を記述します。
 
 ``` js
 var bar = require('./foo/bar.js');
@@ -735,6 +784,8 @@ bar();
 
 and a `foo/bar.js`:
 
+そして`foo/bar.js`には以下を、
+
 ``` js
 module.exports = function () {
     console.log('here in foo/bar.js, __filename is:', __filename);
@@ -742,6 +793,8 @@ module.exports = function () {
 ```
 
 then running browserify starting at `main.js` gives this output:
+
+それから、browserifyに`main.js`に渡し、実行すると次のような出力になります。
 
 ```
 $ browserify main.js | node
@@ -754,7 +807,11 @@ here in foo/bar.js, __filename is: /foo/bar.js
 `__dirname` is the directory of the current file. Like `__filename`, `__dirname`
 is rooted at the `opts.basedir`.
 
+`__dirname`は現在のファイルが格納されているディレクトリを示します。`__filename`と同様に`opts.basedir`をルートパスとします。
+
 Here's an example of how `__dirname` works:
+
+`__dirname`の動作の例を示します。
 
 main.js:
 
@@ -771,6 +828,8 @@ console.log('in abc.js, __dirname=' + __dirname);
 
 output:
 
+出力:
+
 ```
 $ browserify main.js | node
 in abc.js, __dirname=/x/y/z
@@ -782,18 +841,27 @@ in main.js __dirname=/
 Instead of browserify baking in support for everything, it supports a flexible
 transform system that are used to convert source files in-place.
 
+browserifyにすべての機能を実装する代わりに、柔軟なtransformシステムをサポートし、ソースファイルをインプレースで変形します。
+
 This way you can `require()` files written in coffee script or templates and
 everything will be compiled down to javascript.
+
+こうすることでCoffeeScriptで書かれたファイルやテンプレートを`require()`しても、最終的にJavaScriptにコンパイルすることができます。
 
 To use [coffeescript](http://coffeescript.org/) for example, you can use the
 [coffeeify](https://www.npmjs.org/package/coffeeify) transform.
 Make sure you've installed coffeeify first with `npm install coffeeify` then do:
+
+[CoffeeScript](http://coffeescript.org/)の場合には
+[coffeeify](https://www.npmjs.org/package/coffeeify)が利用できます。`npm install coffeeify`としてcoffeeifyをインストールしてから、以下の様に実行します。
 
 ```
 $ browserify -t coffeeify main.coffee > bundle.js
 ```
 
 or with the API you can do:
+
+APIの場合は以下の様になります。
 
 ```
 var b = browserify('main.coffee');
@@ -805,10 +873,14 @@ The best part is, if you have source maps enabled with `--debug` or
 script source files. This is very handy for debugging with firebug or chrome
 inspector.
 
-## writing your own
+もっとも便利な点は、`--debug`オプションか`opts.debug`を通じてsource mapsを利用可能にしている場合、bundle.jsで発生した例外処理などは元々のCoffeeScriptにマップされます。FirebugやChromeの開発者ツールなどを使ってのデバッグに非常に便利です。
+
+## writing your own Transformsを自作するには
 
 Transforms implement a simple streaming interface. Here is a transform that
 replaces `$CWD` with the `process.cwd()`:
+
+Transformは単純なストリーミングのインターフェイスを通じて実装できます。以下は`$CWD`を`process.cwd()`に変換する例です。
 
 ``` js
 var through = require('through2');
@@ -826,11 +898,17 @@ a transform stream that performs the conversion. The stream is written to and by
 browserify with the original file contents and browserify reads from the stream
 to obtain the new contents.
 
+Transform関数はパッケージ内すべての`file`に対して実行され、変換を行うTransformストリームを返します。そのストリームはbrowserifyにオリジナルのファイルの内容とともに書き込まれ、browserifyが変換後の新しいコンテンツを取得します。
+
 Simply save your transform to a file or make a package and then add it with
 `-t ./your_transform.js`.
 
+作成したTransformは単純にファイルとして保存するか、パッケージ化し、`-t ./your_transform.js`のように利用することができます。
+
 For more information about how streams work, check out the
 [stream handbook](https://github.com/substack/stream-handbook).
+
+ストリームがどのように動作するかについて詳しくは[stream handbook](https://github.com/substack/stream-handbook)を参照してください。
 
 # package.json
 
@@ -840,8 +918,12 @@ You can define a `"browser"` field in the package.json of any package that will
 tell browserify to override lookups for the main field and for individual
 modules.
 
+package.jsonに`"browser"`という領域を定義することで、browserifyに対して、個別のモジュール、またはメインの領域にある指定を上書きすることができます。
+
 If you have a module with a main entry point of `main.js` for node but have a
 browser-specific entry point at `browser.js`, you can do:
+
+例えば、`main.js`というファイルをモジュールのメインエントリポイントとしている場合に、ブラウザ用のエントリポイントとして`browser.js`を指定する場合には以下の様にすることができます。
 
 ``` json
 {
@@ -856,6 +938,8 @@ Now when somebody does `require('mypkg')` in node, they will get the exports
 from `main.js`, but when they do `require('mypkg')` in a browser, they will get
 the exports from `browser.js`.
 
+こうすることで、`require('mypkg')`とnodeで行うと、`main.js`からexportsが得られ、ブラウザで`require('mypkg')`とすると、`browser.js`を得ることになります。
+
 Splitting up whether you are in the browser or not with a `"browser"` field in
 this way is greatly preferrable to checking whether you are in a browser at
 runtime because you may want to load different modules based on whether you are
@@ -863,10 +947,18 @@ in node or the browser. If the `require()` calls for both node and the browser
 are in the same file, browserify's static analysis will include everything
 whether you use those files or not.
 
+`"browser"`領域を使ってブラウザ用のモジュールであるかを判定する方法は、nodeとブラウザで異なるモジュールを呼び出すためにも非常におすすめの方法です。
+
+`require()`の実行がnodeとブラウザで同じファイルを参照する場合、browserifyの静的解析はそれらのファイルを使うかどうかに関わらずすべてのファイルに対して実行されます。
+
 You can do more with the "browser" field as an object instead of a string.
+
+`"browser"`領域では文字列以外にオブジェクトを扱うこともできます。
 
 For example, if you only want to swap out a single file in `lib/` with a
 browser-specific version, you could do:
+
+`lib/`ディレクトリ内のある1ファイルだけをブラウザ専用として扱い対場合には以下のようにします。
 
 ``` json
 {
@@ -880,6 +972,8 @@ browser-specific version, you could do:
 ```
 
 or if you want to swap out a module used locally in the package, you can do:
+
+
 
 ``` json
 {
