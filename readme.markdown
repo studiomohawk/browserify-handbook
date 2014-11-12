@@ -1173,6 +1173,8 @@ or if you want to swap out a module used locally in the package, you can do:
 You can ignore files (setting their contents to the empty object) by setting
 their values in the browser field to `false`:
 
+browser領域で`false`を指定することでファイルを無視(コンテンツを空のオブジェクトにする)することもできます。
+
 ``` json
 {
   "name": "mypkg",
@@ -1191,12 +1193,16 @@ require a module you won't need to worry about any system-wide effects it might
 have. Likewise, you shouldn't need to wory about how your local configuration
 might adversely affect modules far away deep into your dependency graph.
 
+browser領域はパッケージ *のみ* に適用されます。そのパッケージに依存しているパッケージや、そのパッケージが依存しているパッケージにマッピングが伝播することはありません。こうすることでシステム全体に及ぶような影響からモジュールを保護するようにしています。同様にこのローカルな設定が依存関係グラフの奥深くまで悪い影響をおよぼすようなことを心配しなくてもよくなります。
+
 ## browserify.transform field
 
 You can configure transforms to be automatically applied when a module is loaded
 in a package's `browserify.transform` field. For example, we can automatically
 apply the [brfs](https://npmjs.org/package/brfs) transform with this
 package.json:
+
+`browserify.transform`領域ではモジュールが呼び出される際に自動的にトランスフォームを設定できます。以下のpackage.jsonの例では[brfs](https://npmjs.org/package/brfs)トランスフォームを自動的に実行できます。
 
 ``` json
 {
@@ -1211,6 +1217,8 @@ package.json:
 
 Now in our `main.js` we can do:
 
+こうすることで`main.js`で以下のようにできます。
+
 ``` js
 var fs = require('fs');
 var src = fs.readFileSync(__dirname + '/foo.txt', 'utf8');
@@ -1222,15 +1230,23 @@ and the `fs.readFileSync()` call will be inlined by brfs without consumers of
 the module having to know. You can apply as many transforms as you like in the
 transform array and they will be applied in order.
 
+モジュールのユーザは`fs.readFileSync()`はbrfsによってインライン化されることを知る必要がありません。この配列内でいくつでもトランスフォームを利用することができ、配列の順番で処理されます。
+
 Like the `"browser"` field, transforms configured in package.json will only
 apply to the local package for the same reasons.
+
+`"browser"`領域と同じ理由でpackage.json内のtransforms領域での設定はローカルパッケージ内にのみ適用されます。
 
 ### configuring transforms
 
 Sometimes a transform takes configuration options on the command line. To apply these
 from package.json you can do the following.
 
+トランスフォームは時としてコマンドラインで設定オプションを利用しますが、package.jsonから設定するには以下のようにします。
+
 **on the command line**
+**コマンドラインの例**
+
 ```
 browserify -t coffeeify \
 	   -t [ browserify-ngannotate --ext .coffee ] \
@@ -1238,6 +1254,7 @@ browserify -t coffeeify \
 ```
 
 **in package.json**
+**package.jsonの例**
 ``` json
 "browserify": {
   "transform": [
@@ -1253,24 +1270,40 @@ browserify -t coffeeify \
 Here are [some useful heuristics](http://substack.net/finding_modules)
 for finding good modules on npm that work in the browser:
 
+ブラウザで動作するnpmにあるモジュールを見つけ出すための[役に立ついくつかのヒューリスティック](http://substack.net/finding_modules)を紹介します。
+
 * I can install it with npm
+
+* npmでインストールすることができること
 
 * code snippet on the readme using require() - from a quick glance I should see
 how to integrate the library into what I'm presently working on
 
+* READMEにあるコード例でrequire()が利用されていること。(ぱっと見で自分自身が開発しているコードにそのライブラリをどうやって連携されるかがわかる)
+
 * has a very clear, narrow idea about scope and purpose
 
+* 明確で、制限されたスコープと目的を持っていること
+
 * knows when to delegate to other libraries - doesn't try to do too many things itself
+
+* 他のライブラリに委譲するタイミングを見極めていること。（そのライブラリ自身で多くのことをやろうとしていないこと)
 
 * written or maintained by authors whose opinions about software scope,
 modularity, and interfaces I generally agree with (often a faster shortcut
 than reading the code/docs very closely)
 
+* ソフトウェアのスコープ、モジュラー性、インターフェイスに関する意見について私自身が大枠同意できる作者またはメインテナーであること。(コードやドキュメントをきちんと読み込むより大抵はこちらの方が早い)
+
 * inspecting which modules depend on the library I'm evaluating - this is baked
 into the package page for modules published to npm
 
+* 評価中のライブラリがほかのどのモジュールから依存されているかを調べる。npmで公開されたパッケージのページで確認できる。
+
 Other metrics like number of stars on github, project activity, or a slick
 landing page, are not as reliable.
+
+GitHubのスターの数や、プロジェクトの活動、オシャレなランディングページの有無はそれほど信頼できるデータではない。
 
 ## module philosophy
 
