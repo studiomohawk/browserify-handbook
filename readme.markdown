@@ -1312,15 +1312,22 @@ be the main way that programmers would consume code because that is the primary
 way of exporting and importing code on most other platforms and indeed still
 persists even on npm.
 
+プログラマにコードを利用してもらうには、たくさんの便利なユーティリティのようなパッケージを公開することが主要な方法だと考えています。そうすることが他のプラットフォームでも、もちろんnpmでもコードを公開したり、利用したりする方法だからです。
+
 However, this
 [kitchen-sink mentality](https://github.com/substack/node-mkdirp/issues/17)
 toward including a bunch of thematically-related but separable functionality
 into a single package appears to be an artifact for the difficulty of
 publishing and discovery in a pre-github, pre-npm era.
 
+しかし、このようなテーマ的には関連していても、分割できる機能を1つのパッケージに[詰め込もうとする精神](https://github.com/substack/node-mkdirp/issues/17)はGitHub以前、npm以前のパッケージの公開や発見が難しかった時代の遺物です。
+
 There are two other big problems with modules that try to export a bunch of
 functionality all in one place under the auspices of convenience: demarcation
 turf wars and finding which modules do what.
+
+きっと便利になるであろうと思って、すべての機能を寄せ集めているモジュールには他に2つの大きな問題があります。  
+縄張り争いとどのモジュールが何をするのかを見つけ出すことです。
 
 Packages that are grab-bags of features
 [waste a ton of time policing boundaries](https://github.com/jashkenas/underscore/search?q=%22special-case%22&ref=cmdform&type=Issues)
@@ -1329,10 +1336,15 @@ There is no clear natural boundary of the problem domain in this kind of package
 about what the scope is, it's all
 [somebody's smug opinion](http://david.heinemeierhansson.com/2012/rails-is-omakase.html).
 
+機能の寄せ集めパッケージは多くの無駄な時間を新しい機能がそのパッケージの属すべきか否かの[境界線の警備](https://github.com/jashkenas/underscore/search?q=%22special-case%22&ref=cmdform&type=Issues)に費やします。  
+このようなパッケージにおけるスコープには明確で当然な問題領域の境界線はなく、いつだって[誰かの独りよがりな意見](http://david.heinemeierhansson.com/2012/rails-is-omakase.html)でしかありません。
+
 Node, npm, and browserify are not that. They are avowedly ala-carte,
 participatory, and would rather celebrate disagreement and the dizzying
 proliferation of new ideas and approaches than try to clamp down in the name of
 conformity, standards, or "best practices".
+
+Node、npm、そしてbrowserifyはそうではありません。心地いい、標準、または『ベストプラクティス』の名の元で取り締まるのではなく、アラカルト的で、参加型であり、意見の不一致をたたえ、そして目眩がするほどの新しいアイデアやアプローチをたたえます。
 
 Nobody who needs to do gaussian blur ever thinks "hmm I guess I'll start checking
 generic mathematics, statistics, image processing, and utility libraries to see
@@ -1343,6 +1355,10 @@ No. None of this. Stop it. They `npm search gaussian` and they immediately see
 it does exactly what they want and then they continue on with their actual
 problem instead of getting lost in the weeds of somebody's neglected grand
 utility fiefdom.
+
+グラシアン・ブラーを必要としている誰もが、「あー、まずは一般数学か、統計か、画像処理かユーティリティライブラリの中からグラシアン・ブラーがあるか確認しよう。あれ、stats2だったか。画像便利ユーティティだったか、math-extraにあったか、もしかしてunderscoreに入っていたっけ?」というようなことを考える必要はないはずです。  
+もう、そんなことは嫌ですよね?  
+`npm search gaussian`とすれば、[ndarray-gaussian-filter](https://npmjs.org/package/ndarray-gaussian-filter)をすぐ見つけ出すことができ、このパッケージは丁度やりたいことを実装しています。誰かが放置した贅沢なユーティリティ国の草むらで迷うのでは無く、実際の問題の解決へ向かうことができるわけです。
 
 # organizing modules
 
