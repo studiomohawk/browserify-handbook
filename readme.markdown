@@ -1369,6 +1369,8 @@ overhead of setting up a private npm or git repo is still rather large in many
 cases. Here are some approaches for avoiding the `../../../../../../../`
 relative paths problem.
 
+アプリケーション内の全てのモジュールをnpmで公開できるわけではありませんし、プライベートなnpmやgitレポジトリを用意するのは多くの場合はまだ面倒です。以下に`../../../../../../../`というような相対パスの問題を回避するアプローチを紹介します。
+
 ### node_modules
 
 People sometimes object to putting application-specific modules into
