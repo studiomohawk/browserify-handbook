@@ -1377,8 +1377,12 @@ People sometimes object to putting application-specific modules into
 node_modules because it is not obvious how to check in your internal modules
 without also checking in third-party modules from npm.
 
+第三者製のモジュールと内製モジュールを分離して管理することができないため、アプリケーション専用モジュールを`node_modules`ディレクトリに格納することに反対する人もいます。
+
 The answer is quite simple! If you have a `.gitignore` file that ignores
 `node_modules`:
+
+それに関する答えは簡単です。`.gitignore`ファイルで`node_modules`を無視する設定をしている場合には、
 
 ```
 node_modules
@@ -1386,6 +1390,8 @@ node_modules
 
 You can just add an exception with `!` for each of your internal application
 modules:
+
+内製したアプリケーション専用モジュールに対して、`!`を追加するだけで、例外処理を行えます。
 
 ```
 node_modules/*
@@ -1398,12 +1404,19 @@ if the parent is already ignored. So instead of ignoring `node_modules`,
 you have to ignore every directory *inside* `node_modules` with the 
 `node_modules/*` trick, and then you can add your exceptions.
 
+注意しなければならないことは、親ディレクトリが無視されている場合に、サブ・ディレクトリを *無視しない* 設定にすることはできません。  
+`node_modules`ディレクトリの *中の* ディレクトリすべてを`node_modules/*`というように無視する必要があります。こうすることで、例外処理を行えます。
+
 Now anywhere in your application you will be able to `require('foo')` or
 `require('bar')` without having a very large and fragile relative path.
+
+こうすることでアプリケーション内にて、巨大でかつ脆弱な相対パスを指定することなく、`require('foo')`や、`require('bar')`というようにモジュールを呼び出せます。
 
 If you have a lot of modules and want to keep them more separate from the
 third-party modules installed by npm, you can just put them all under a
 directory in `node_modules` such as `node_modules/app`:
+
+たくさんのモジュールがあって、npmでインストールした第三者製のモジュールとの区別をより明確にしたい場合は、すべての内製モジュールを`node_modules`内のある1つのディレクトリ、例えば、`node_modules/app`のような場所に格納することもできます。
 
 ```
 node_modules/app/foo
@@ -1413,7 +1426,11 @@ node_modules/app/bar
 Now you will be able to `require('app/foo')` or `require('app/bar')` from
 anywhere in your application.
 
+この場合には、アプリケーションからは`require('app/foo')`、`require('app/bar')`というように呼び出せます。
+
 In your `.gitignore`, just add an exception for `node_modules/app`:
+
+`.gitignore`ファイルには、`node_modules/app`に対してのみ例外を記述すればよいことになります。
 
 ```
 node_modules/*
@@ -1427,11 +1444,17 @@ transforms don't apply across module boundaries. This will make your modules
 more robust against configuration changes in your application and it will be
 easier to independently reuse the packages outside of your application.
 
+transformの設定をpackage.jsonで記述している場合、`node_modules/foo`や`node_modules/app/foo`にあるディレクトリ内にある別のpackage.json内に記述する必要があります。    
+アプリケーション内での設定の変更に対して堅牢で、アプリケーション外でパッケージを個別で再利用することも簡単にできるため、transformsはモジュールを超えて適用できないからです。
+
 ### symlink
 
 Another handy trick if you are working on an application where you can make
 symlinks and don't need to support windows is to symlink a `lib/` or `app/`
 folder into `node_modules`. From the project root, do:
+
+もう1つ便利なトリックとして、シンボリック・リンクが使えて、Windowsをサポートする必要がない場合には、`lib/`やapp/`から、`node_modules`にシンボリック・リンクを作る方法もあります。  
+プロジェクトのルートから、以下のように実行します。
 
 ```
 ln -s ../lib node_modules/app
@@ -1440,21 +1463,31 @@ ln -s ../lib node_modules/app
 and now from anywhere in your project you'll be able to require files in `lib/`
 by doing `require('app/foo.js')` to get `lib/foo.js`.
 
+こうすることで、プロジェクト内のどこからでも`lib/`内にあるファイルに対して、`require('app/foo.js')`とすることができます。
+
 ### custom paths
 
 You might see some places talk about using the `$NODE_PATH` environment variable
 or `opts.paths` to add directories for node and browserify to look in to find
 modules.
 
+皆さんもこれまでに環境変数である`$NODE_PATH`や`opts.paths`を使って、nodeやbrowserifyのモジュールを格納するディレクトリを追加する例を見たことがあることでしょう。
+
 Unlike most other platforms, using a shell-style array of path directories with
 `$NODE_PATH` is not as favorable in node compared to making effective use of the
 `node_modules` directory.
+
+ほかのプラットフォームとは異なり、`$NODE_PATH`に対してパスディレクトリをシェルのスタイルの配列を使って追加することは、nodeにおいては`node_modules`を効果的に使うことに比べて、好まれてはいません。
 
 This is because your application is more tightly coupled to a runtime
 environment configuration so there are more moving parts and your application
 will only work when your environment is setup correctly.
 
+こうすることでアプリケーションがより不確定要素の多い、実行環境の設定対して強い依存を持つことになってしまい、環境を正確に用意できないとアプリケーションが動作しなくなってしまうからです。
+
 node and browserify both support but discourage the use of `$NODE_PATH`.
+
+nodeもbrowserifyも`$NODE_PATH`をサポートはしていますが、利用については推奨していません。
 
 ## non-javascript assets
 
