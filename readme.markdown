@@ -1496,15 +1496,23 @@ There are many
 you can use to do many things. Commonly, transforms are used to include
 non-javascript assets into bundle files.
 
+非常に多くのことができる[browserifyのトランスフォーム](https://github.com/substack/node-browserify/wiki/list-of-transforms)が公開されています。中にはJavaScriptではないアセットをバンドル化するトランスフォームも存在しています。
+
 ### brfs
 
 One way of including any kind of asset that works in both node and the browser
 is brfs.
 
+Nodeでもブラウザでも動作する様々なアセットをバンドル化する方法としてbrfsが上げられます。
+
 brfs uses static analysis to compile the results of `fs.readFile()` and
 `fs.readFileSync()` calls down to source contents at compile time.
 
+brfsは静的解析を行い`fs.readFile()`と`fs.readFileSync()`の実行結果をコンパイルすることができます。
+
 For example, this `main.js`:
+
+例えば、以下の`main.js`では、
 
 ``` js
 var fs = require('fs');
@@ -1513,6 +1521,8 @@ console.log(html);
 ```
 
 applied through brfs would become something like:
+
+brfsを適用すると以下のように処理されます。
 
 ``` js
 var fs = require('fs');
@@ -1525,8 +1535,12 @@ when run through brfs.
 This is handy because you can reuse the exact same code in node and the browser,
 which makes sharing modules and testing much simpler.
 
+Nodeとブラウザ間でまったく同じコードを再利用できるので非常に便利ですし、モジュールの共有やテストをよりシンプルにできます。
+
 `fs.readFile()` and `fs.readFileSync()` accept the same arguments as in node,
 which makes including inline image assets as base64-encoded strings very easy:
+
+Nodeでは、`fs.readFile()`と`fs.readFileSync()`は同じ引数を利用できるため、base64でエンコードされた文字列として画像のアセットをバンドル化することも簡単に行えます。
 
 ``` js
 var fs = require('fs');
@@ -1537,8 +1551,10 @@ document.body.appendChild(img);
 ```
 
 If you have some css you want to inline into your bundle, you can do that too
-with the assistence of a module such as
+with the assistance of a module such as
 [insert-css](https://npmjs.org/package/insert-css):
+
+[insert-css](https://npmjs.org/package/insert-css)のようなモジュールを利用すれば、CSSをバンドル化することもできます。
 
 ``` js
 var fs = require('fs');
@@ -1553,6 +1569,8 @@ with npm because they are fully-contained, but if you want a more wholistic
 approach to asset management using browserify, check out
 [atomify](https://www.npmjs.org/package/atomify) and
 [parcelify](https://www.npmjs.org/package/parcelify).
+
+npmで配布する小さな再利用可能なモジュールとしてCSSを上記のように挿入することもできますが、browserifyを利用してより総体的なアセット管理をする場合には、[atomify](https://www.npmjs.org/package/atomify)や[parcelify](https://www.npmjs.org/package/parcelify)を試してみるといいでしょう。
 
 ### hbsify
 
