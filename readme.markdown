@@ -1583,7 +1583,11 @@ npmで配布する小さな再利用可能なモジュールとしてCSSを上�
 Putting these ideas about code organization together, we can build a reusable UI
 component that we can reuse across our application or in other applications.
 
+ここまで紹介してきたコードの統合に関する様々なアイデアを活用して、開発中のアプリケーション内やほかのアプリケーションでも再利用可能なUIコンポーネントを生み出すことができます。
+
 Here is a bare-bones example of an empty widget module:
+
+ベア・ボーンな例として空のウィジェットモジュールを作成します。
 
 ``` js
 module.exports = Widget;
@@ -1605,10 +1609,16 @@ check like above to let people consume your module with `new Widget` or
 and you still get the performance benefits and indentation wins of using
 prototypes.
 
+JavaScriptのコンストラクタに関するコツ: 上記のように`this instanceof Widget`とすることで、`new Widget`または`Widget()`というようにモジュールを利用することができます。実装に関する詳細をAPIから隠すことができる上、prototypeを利用したパフォーマンスの優位性を活用することもできます。
+
 To use this widget, just use `require()` to load the widget file, instantiate
 it, and then call `.appendTo()` with a css selector string or a dom element.
 
+先ほどのウィジェットを使うには、`require()`を使ってウィジェット・ファイルを呼びだし、初期化し、CSSセレクタの文字列か、DOM要素で`.appendTo()`を実行すればいいだけです。
+
 Like this:
+
+以下がその例です。
 
 ``` js
 var Widget = require('./widget.js');
@@ -1618,13 +1628,19 @@ w.appendTo('#container');
 
 and now your widget will be appended to the DOM.
 
+これでウィジェットはDOMに追加されます。
+
 Creating HTML elements procedurally is fine for very simple content but gets
 very verbose and unclear for anything bigger. Luckily there are many transforms
 available to ease importing HTML into your javascript modules.
 
+HTML要素を手続き的に作っていくことはシンプルなコンテンツの場合には問題ないでしょう。しかし、ほんの少し大きなシステムでも、冗長で不明瞭になってしまうプロセスです。運がいいことにHTMLをJavaScriptモジュール内にインポートするトランスフォームはたくさん公開されています。
+
 Let's extend our widget example using [brfs](https://npmjs.org/package/brfs). We
 can also use [domify](https://npmjs.org/package/domify) to turn the string that
 `fs.readFileSync()` returns into an html dom element:
+
+先ほどのウィジェットの例を[brfs](https://npmjs.org/package/brfs)を使って拡張してみましょう。それに加えて、[domify](https://npmjs.org/package/domify)を使って、`fs.readFileSync()`から戻ってくる文字列をHTMLのDOM要素として利用できるようにします。
 
 ``` js
 var fs = require('fs');
@@ -1647,6 +1663,8 @@ Widget.prototype.appendTo = function (target) {
 
 and now our widget will load a `widget.html`, so let's make one:
 
+これでウィジェットは`widget.html`を呼び出すことになったので、早速作成します。
+
 ``` html
 <div class="widget">
   <h1 class="name"></h1>
@@ -1657,6 +1675,8 @@ and now our widget will load a `widget.html`, so let's make one:
 It's often useful to emit events. Here's how we can emit events using the
 built-in `events` module and the [inherits](https://npmjs.org/package/inherits)
 module:
+
+大抵の場合はイベントを発火すると便利です。以下にNode標準モジュールである`events`と[inherits](https://npmjs.org/package/inherits)モジュールを使って実装する例を示します。
 
 ``` js
 var fs = require('fs');
@@ -1683,6 +1703,8 @@ Widget.prototype.appendTo = function (target) {
 
 Now we can listen for `'append'` events on our widget instance:
 
+こうするとウィジェット・インスタンスで`'append'`イベントの発火を監視することができます。
+
 ``` js
 var Widget = require('./widget.js');
 var w = Widget();
@@ -1693,6 +1715,8 @@ w.appendTo('#container');
 ```
 
 We can add more methods to our widget to set elements on the html:
+
+ウィジェットのHTMLに対して要素を付与するメソッドを追加します。
 
 ``` js
 var fs = require('fs');
@@ -1727,10 +1751,14 @@ Widget.prototype.setMessage = function (msg) {
 If setting element attributes and content gets too verbose, check out
 [hyperglue](https://npmjs.org/package/hyperglue).
 
+要素の属性やコンテンツが冗長になってきたら、[hyperglue](https://npmjs.org/package/hyperglue)を試してみてください。
+
 Now finally, we can toss our `widget.js` and `widget.html` into
 `node_modules/app-widget`. Since our widget uses the
 [brfs](https://npmjs.org/package/brfs) transform, we can create a `package.json`
 with:
+
+最後に`widget.js`と`widget.html`を`node_modules/app-widget`に格納します。このウィジェットは[brfs](https://npmjs.org/package/brfs)ランスフォームを利用するので、`package.json`は以下のようになります。
 
 ``` json
 {
@@ -1754,8 +1782,13 @@ Our widget can even maintain its own dependencies. This way we can update
 dependencies in one widgets without worrying about breaking changes cascading
 over into other widgets.
 
+これでアプリケーション内のどこで`require('app-widget')`が実行されようと、brfsは自動で`widget.js`に適用されます!  
+このウィジェットはもちろん自身の依存を管理できます。こうすることで、ある1つのウィジェット内の依存をアップデートしても、ほかのウィジェットに影響を与える心配をしなくてもすむようになります。
+
 Make sure to add an exclusion in your `.gitignore` for
 `node_modules/app-widget`:
+
+`node_modules/app-widget`を`.gitignore`を使って除外するのも忘れないでください。
 
 ```
 node_modules/*
@@ -1766,6 +1799,8 @@ You can read more about [shared rendering in node and the
 browser](http://substack.net/shared_rendering_in_node_and_the_browser) if you
 want to learn about sharing rendering logic between node and the browser using
 browserify and some streaming html libraries.
+
+レンダリング・ロジックをbrowserifyといくつかのHTMLストリーミングライブラリを使って、Nodeとブラウザ間で共有する方法について詳しく知りたい場合は、[shared rendering in node and the browser](http://substack.net/shared_rendering_in_node_and_the_browser)の記事を参考にしてください。
 
 # testing in node and the browser
 
