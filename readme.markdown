@@ -1758,7 +1758,7 @@ Now finally, we can toss our `widget.js` and `widget.html` into
 [brfs](https://npmjs.org/package/brfs) transform, we can create a `package.json`
 with:
 
-最後に`widget.js`と`widget.html`を`node_modules/app-widget`に格納します。このウィジェットは[brfs](https://npmjs.org/package/brfs)ランスフォームを利用するので、`package.json`は以下のようになります。
+最後に`widget.js`と`widget.html`を`node_modules/app-widget`に格納します。このウィジェットは[brfs](https://npmjs.org/package/brfs)トランスフォームを利用するので、`package.json`は以下のようになります。
 
 ``` json
 {
