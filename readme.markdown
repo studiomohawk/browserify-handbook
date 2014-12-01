@@ -1808,9 +1808,13 @@ Testing modular code is very easy! One of the biggest benefits of modularity is
 that your interfaces become much easier to instantiate in isolation and so it's
 easy to make automated tests.
 
+モジュール化したコードをテストをするのは簡単です!モジュール化の最大の効用はインターフェースを初期化する際に独立した形で行うことができるため、自動テストを作成するのが容易になることです。
+
 Unfortunately, few testing libraries play nicely out of the box with modules and
 tend to roll their own idiosyncratic interfaces with implicit globals and obtuse
 flow control that get in the way of a clean design with good separation.
+
+残念なことに、モジュール化したコードをテストするのに簡単なテストライブラリは多くはありません。それに加えて、多くは暗黙のグローバルを使った独特なインターフェースを用意している上、分離された整然としたデザインの邪魔になるようなフロー制御を行ってしまっています。
 
 People also make a huge fuss about "mocking" but it's usually not necessary if
 you design your modules with testing in mind. Keeping IO separate from your
@@ -1818,16 +1822,23 @@ algorithms, carefully restricting the scope of your module, and accepting
 callback parameters for different interfaces can all make your code much easier
 to test.
 
+多くの人が"モック"に対して大きな関心を寄せていますが、モジュール化を念頭にコードをデザインする場合には必要ない場合が多い。IOとアルゴリズムと分化し、モジュールのスコープを注意深く制限し、そして、異なるインターフェース用のコールバックパラメータを受け入れることで容易にテストするできるようになります。
+
 For example, if you have a library that does both IO and speaks a protocol,
 [consider separating the IO layer from the
 protocol](https://www.youtube.com/watch?v=g5ewQEuXjsQ#t=12m30)
 using an interface like [streams](https://github.com/substack/stream-handbook).
+
+IOとプロトコルへのアクセスのあるライブラリがある場合、[Streams](https://github.com/substack/stream-handbook)インターフェースなどを利用して、[IOレイヤとプロトコルを分離することを検討してください](https://www.youtube.com/watch?v=g5ewQEuXjsQ#t=12m30)。
 
 Your code will be easier to test and reusable in different contexts that you
 didn't initially envision. This is a recurring theme of testing: if your code is
 hard to test, it is probably not modular enough or contains the wrong balance of
 abstractions. Testing should not be an afterthought, it should inform your
 whole design and it will help you to write better interfaces.
+
+コードはテストが容易になり、元々想定していたよりも多くのコンテキストで再利用できるようになります。テストに関する繰り返し発生するテーマとして、もしコードがテストしづらい場合は、そのコードのモジュール化は十分でないか、異なるバランスの抽象化が含まれている。というものがあります。  
+テストを行うことは後付けではなく、全体のデザインについて情報を提供するものであり、より優れたインターフェースを書くための助けとなるべきです。
 
 ## testing libraries
 
