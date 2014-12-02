@@ -1847,6 +1847,8 @@ whole design and it will help you to write better interfaces.
 Tape was specifically designed from the start to work well in both node and
 browserify. Suppose we have an `index.js` with an async interface:
 
+TapeはNodeとBrowserifyの両方で利用するように始めから作成されたライブラリです。以下の様な非同期インターフェースを持った`index.js`があるとします。
+
 ``` js
 module.exports = function (x, cb) {
     setTimeout(function () {
@@ -1857,6 +1859,8 @@ module.exports = function (x, cb) {
 
 Here's how we can test this module using [tape](https://npmjs.org/package/tape). 
 Let's put this file in `test/beep.js`:
+
+このモジュールを[tape](https://npmjs.org/package/tape)を使ってテストしてみましょう。以下を`test/beep.js`に記述します。
 
 ``` js
 var test = require('tape');
@@ -1876,24 +1880,40 @@ parent directory by doing `require('../')`. `index.js` is the default place that
 node and browserify look for a module if there is no package.json in that
 directory with a `main` field.
 
+`test/`ディレクトリ内にテストファイルが設置されているため、`require('../')`の記述で、親ディレクトリにある`index.js`を呼び出します。NodeとBrowserifyは`package.json`内に`main`フィールドで設定がない限り、`index.js`というファイル名をデフォルト値として扱います。
+
 We can `require()` tape like any other library after it has been installed with
 `npm install tape`.
 
+`npm install tape`でインストールを行えば、ほかのライブラリと同様に、tapeを`require()`することができます。
+
 The string `'beep'` is an optional name for the test.
 The 3rd argument to `t.equal()` is a completely optional description.
+
+例にある`'beep'`という文字列はテストの名称です。これは必須ではありません。`t.equal()`の第3引数も同様に必須ではありません。
 
 The `t.plan(1)` says that we expect 1 assertion. If there are not enough
 assertions or too many, the test will fail. An assertion is a comparison
 like `t.equal()`. tape has assertion primitives for:
 
+`t.plan(1)`は1つのアサーションがある事を示しています。アサーションは指定より多くても少なくてもテストは失敗します。アサーションとは`t.equal()`のような比較を指します。Tapeには以下のような基本アサーションがあります。
+
 * t.equal(a, b) - compare a and b strictly with `===`
 * t.deepEqual(a, b) - compare a and b recursively
 * t.ok(x) - fail if `x` is not truthy
 
+* t.equal(a, b) - aとbを`===`使って厳密に比較します
+* t.deepEqual(a, b) - aとbを再帰的に比較します
+* t.ok(x) - `x`が'truthy'でない場合に失敗します
+
 and more! You can always add an additional description argument.
+
+他にもまだアサーションはあります。また全てのアサーションに対して説明文を追加する引数は利用できます。
 
 Running our module is very simple! To run the module in node, just run
 `node test/beep.js`:
+
+モジュールを実行するのはとても簡単です。`node test/beep.js`として、Node内でモジュールを実行できます。
 
 ```
 $ node test/beep.js
@@ -1912,11 +1932,17 @@ The output is printed to stdout and the exit code is 0.
 
 To run our code in the browser, just do:
 
+テスト結果はstdoutとして表示され、0を終了ステータスとします。 
+
+ブラウザでこのコードを実行するには、以下のようにするだけです。
+
 ```
 $ browserify test/beep.js > bundle.js
 ```
 
 then plop `bundle.js` into a `<script>` tag:
+
+そして`bundle.js`を`<script>`タグで呼び出します。
 
 ```
 <script src="bundle.js"></script>
@@ -1925,14 +1951,20 @@ then plop `bundle.js` into a `<script>` tag:
 and load that html in a browser. The output will be in the debug console which
 you can open with F12, ctrl-shift-j, or ctrl-shift-k depending on the browser.
 
+そしてHTMLをブラウザで呼び出します。テスト結果はデバッグ・コンソールに表示されます。ブラウザによって異なりますが、F12か、ctrl-shift-j、またはctrl-shift-kなどのショートカットキーで呼び出します。
+
 This is a bit cumbersome to run our tests in a browser, but you can install the
 `testling` command to help. First do:
+
+ブラウザでテストを実行するのはやや面倒ですが、`testling`を利用すると楽になります。まずはインストールします。
 
 ```
 npm install -g testling
 ```
 
 And now just do `browserify test/beep.js | testling`:
+
+それから、`browserify test/beep.js | testling`とするだけです。
 
 ```
 $ browserify test/beep.js | testling
@@ -1950,7 +1982,11 @@ ok 1 5*100 === 500
 
 `testling` will launch a real browser headlessly on your system to run the tests.
 
+`testling`は本物のブラウザをヘッドレスで立ち上げ、テストを実行します。
+
 Now suppose we want to add another file, `test/boop.js`:
+
+`test/boop.js`という別のファイルを追加したとします。
 
 ``` js
 var test = require('tape');
@@ -1977,15 +2013,23 @@ Here our test has 2 `test()` blocks. The second test block won't start to
 execute until the first is completely finished, even though it is asynchronous.
 You can even nest test blocks by using `t.test()`.
 
+このテストには2つの`test()`ブロックがあります。非同期であっても2つ目のテストブロックは1つ目のブロックのテストが完全に終了するまで実行されません。  
+また`t.test()`を使ってテストブロックを入れ子にすることもできます。
+
 We can run `test/boop.js` with node directly as with `test/beep.js`, but if we
 want to run both tests, there is a minimal command-runner we can use that comes
 with tape. To get the `tape` command do:
+
+先ほどの`test/beep.js`と同じく`test/boop.js`をNodeから直接実行することもできますが、両方のテストを実行する場合、tapeに付属するミニマムなコマンドランナーを使うこともできます。  
+`tape`を利用するには以下のようにしてインストールします。
 
 ```
 npm install -g tape
 ```
 
 and now you can run:
+
+すると、以下のように利用できます。
 
 ```
 $ tape test/*.js
@@ -2006,6 +2050,8 @@ ok 3 negative number
 
 and you can just pass `test/*.js` to browserify to run your tests in the
 browser:
+
+ブラウザでテストを実行するには`test/*.js`をBrowserifyに渡すだけです。
 
 ```
 $ browserify test/* | testling
@@ -2028,6 +2074,8 @@ ok 3 negative number
 Putting together all these steps, we can configure `package.json` with a test
 script:
 
+`package.json`にこれらのステップをテストスクリプトとして設定することもできます。
+
 ``` json
 {
   "name": "hundreder",
@@ -2049,10 +2097,16 @@ run the tests in the browser. You don't need to worry about installing commands
 with `-g` when you use `npm run`: npm automatically sets up the `$PATH` for all
 packages installed locally to the project.
 
+この設定を行うと、`npm test`でNodeでテストを実行でき、`npm run test-browser`でブラウザでテストを実行できます。  
+`npm run`を利用する場合には、npmは自動的にプロジェクト内にインストールされたパッケージに対して、`$PATH`を設定するため、コマンドを`-g`でインストールする必要はありません。
+
 If you have some tests that only run in node and some tests that only run in the
 browser, you could have subdirectories in `test/` such as `test/server` and
 `test/browser` with the tests that run both places just in `test/`. Then you
 could just add the relevant directory to the globs:
+
+いくつかのテストがNodeだけで実行されたり、ブラウザで実行されたりするような場合には、`test/`ディレクトリ内に`test/server`や`test/browser`というサブディレクトリを作ることもできます。`test/`内には両方の環境で実行されるものを置きます。  
+そして、Globsに適切なディレクトリを設定すれば問題ありません。
 
 ``` json
 {
@@ -2073,9 +2127,13 @@ could just add the relevant directory to the globs:
 and now server-specific and browser-specific tests will be run in addition to
 the common tests.
 
+こうするとサーバ専用とブラウザ専用のテストを共通のテストに加えて実行することができます。
+
 If you want something even slicker, check out
 [prova](https://www.npmjs.org/package/prova) once you have gotten the basic
 concepts.
+
+基本コンセプトを理解した上で、もっとオシャレな解決をしたい場合には[prova](https://www.npmjs.org/package/prova)をチェックしてみてください。
 
 ### assert
 
