@@ -2133,15 +2133,19 @@ If you want something even slicker, check out
 [prova](https://www.npmjs.org/package/prova) once you have gotten the basic
 concepts.
 
-基本コンセプトを理解した上で、もっとオシャレな解決をしたい場合には[prova](https://www.npmjs.org/package/prova)をチェックしてみてください。
+基本コンセプトを理解した上で、もっと華麗な解決をしたい場合には[prova](https://www.npmjs.org/package/prova)をチェックしてみてください。
 
 ### assert
 
 The core assert module is a fine way to write simple tests too, although it can
 sometimes be tricky to ensure that the correct number of callbacks have fired.
 
+コアのアサートモジュールは単純なテストを書くのに十分な方法ですが、コールバックが正しい回数実行されたかなどのようなテストを行うのには面倒な場合もあります。
+
 You can solve that problem with tools like
 [macgyver](https://www.npmjs.org/package/macgyver) but it is appropriately DIY.
+
+[macgyver](https://www.npmjs.org/package/macgyver)を使うことでその問題を解決できますが、DIYな解決ではあります。
 
 ### mocha
 
