@@ -2161,10 +2161,16 @@ This section covers bundling in more detail.
 Bundling is the step where starting from the entry files, all the source files
 in the dependency graph are walked and packed into a single output file.
 
+本セクションではバンドルについてもう少し詳しく紹介していきます。
+
+バンドルとはエントリファイルから始まり、全てのソースファイルの依存関係グラフが解決され、1ファイルに出力されるステップを指します。
+
 ## saving bytes
 
 One of the first things you'll want to tweak is how the files that npm installs
 are placed on disk to avoid duplicates.
+
+一番始めに修正するポイントとなるのは重複を避けるためにnpmがどのようにファイルをインストールし、保存するのかでしょう。
 
 When you do a clean install in a directory, npm will ordinarily factor out
 similar versions into the topmost directory where 2 modules share a dependency.
@@ -2174,13 +2180,20 @@ packages for an already-installed set of packages in `node_modules/`. You could
 also remove `node_modules/` and install from scratch again if problems with
 duplicates persist.
 
+ディレクトリ内でクリーン・インストールを行う場合、npmは通常は2つのモジュールが共有している依存関係を最上段のディレクトリに似たバージョンをくくってくれます。
+しかし、さらにモジュールを追加インストールする場合、新しいパッケージは自動でくくられません。`npm dedupe`コマンドを利用すると、すでに`node_modules/`内にインストールされたパッケージ同士を関連付け直してくれます。それでも重複する状況が改善されない場合は、`node_modules/`を削除して、始めからインストールしなおす方法もあります。
+
 browserify will not include the same exact file twice, but compatible versions
 may differ slightly. browserify is also not version-aware, it will include the
 versions of packages exactly as they are laid out in `node_modules/` according
 to the `require()` algorithm that node uses.
 
+Browserifyは全く同じファイルを2度呼び出すことはありませんが、互換性のあるバージョン同士では若干の違いが存在します。Browserifyはバージョンを認識しません。Nodeと同じ`require()`のアルゴリズムと同じく、`node_modules/`にあるバージョンを利用します。
+
 You can use the `browserify --list` and `browserify --deps` commands to further
 inspect which files are being included to scan for duplicates.
+
+`browserify --list`や`browserify --deps`というコマンドを利用して詳しくどのファイルが重複排除を行うためのスキャンに入っているかを確認することができます。
 
 ## standalone
 
