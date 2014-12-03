@@ -2578,17 +2578,22 @@ a.addEventListener('click', function() {
 Since version 5, browserify exposes its compiler pipeline as a
 [labeled-stream-splicer](https://www.npmjs.org/package/labeled-stream-splicer).
 
-
+バージョン5以降、Browserifyはコンパイラのパイプラインを[labeled-stream-splicer](https://www.npmjs.org/package/labeled-stream-splicer)として公開しています。
 
 This means that transformations can be added or removed directly into the
 internal pipeline. This pipeline provides a clean interface for advanced
 customizations such as watching files or factoring bundles from multiple entry
 points.
 
+これはトランスフォーメーションを内部的なパイプラインに直接追加したり、削除できることを意味します。このパイプラインを通じてファイルの監視や複数エントリポイントからのバンドル生成などのような高度なカスタマイズをクリーンなインターフェイスを使って行えるようになります。
+
 For example, we could replace the built-in integer-based labeling mechanism with
 hashed IDs by first injecting a pass-through transform after the "deps" have
 been calculated to hash source files. Then we can use the hashes we captured to
 create our own custom labeler, replacing the built-in "label" transform:
+
+例えばデフォルトで提供している数値を基準にしたラベルを"deps”がソースファイルのハッシュ化を行った後、パス・スルートランスフォームを挿入するような形でハッシュIDと置き換えることもできます。 
+生成したハッシュを使ってカスタムしたラベラーを作り、元もとある”label”トランスフォームを置き換えることができます。
 
 ``` js
 var browserify = require('browserify');
@@ -2623,6 +2628,8 @@ b.bundle().pipe(process.stdout);
 Now instead of getting integers for the IDs in the output format, we get file
 hashes:
 
+出力ファイル内で数値のIDの代わりに、ファイルハッシュを利用します。
+
 ```
 $ node bundle.js
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"5f0a0e3a143f2356582f58a70f385f4bde44f04b":[function(require,module,exports){
@@ -2644,6 +2651,8 @@ Note that the built-in labeler does other things like checking for the external,
 excluded configurations so replacing it will be difficult if you depend on those
 features. This example just serves as an example for the kinds of things you can
 do by hacking into the compiler pipeline.
+
+内蔵のラベラーはラベリング以外の部分のチェック機構もあるため、単純に置き換えてしまうとそれらの機能に依存している場合には注意が必要です。この例はコンパイラのパイプラインをどうハックするかの単純な例です。
 
 ## build your own browserify
 
