@@ -2200,7 +2200,11 @@ inspect which files are being included to scan for duplicates.
 You can generate UMD bundles with `--standalone` that will work in node, the
 browser with globals, and AMD environments.
 
+`--standalone`オプションを利用すると、UMDバンドルを生成することができます。UMDとはNodeでも、グローバルを介してブラウザでも、AMDとしても利用できる形式です。
+
 Just add `--standalone NAME` to your bundle command:
+
+`--standalone NAME`をバンドル用のコマンドに追加するだけで実行できます。
 
 ```
 $ browserify foo.js --standalone xyz > bundle.js
@@ -2210,7 +2214,11 @@ This command will export the contents of `foo.js` under the external module name
 `xyz`. If a module system is detected in the host environment, it will be used.
 Otherwise a window global named `xyz` will be exported.
 
+このコマンドは、`foo.js`のコンテンツを`xyz`というモジュール名でエキスポートします。実行環境にモジュールシステムが存在する場合、そのシステムを利用します。そうでなければ、`xyz`という変数がグローバルに公開されます。
+
 You can use dot-syntax to specify a namespace hierarchy:
+
+ドットシンタックスを使って、名前空間の階層を指定することもできます。
 
 ```
 $ browserify foo.js --standalone foo.bar.baz > bundle.js
@@ -2220,8 +2228,12 @@ If there is already a `foo` or a `foo.bar` in the host environment in window
 global mode, browserify will attach its exports onto those objects. The AMD and
 `module.exports` modules will behave the same.
 
+すでに`foo`や`foo.bar`がグローバルに存在している場合、Browserifyはそれらのオブジェクトに追加します。AMDも`module.exports`モジュールも同様の挙動になります。
+
 Note however that standalone only works with a single entry or directly-required
 file.
+
+スタンドアロンは1つのエントリファイル、または直接指定したファイルでしか動作しない点に注意してください。
 
 ## external bundles
 
@@ -2230,8 +2242,12 @@ file.
 In browserify parlance, "ignore" means: replace the definition of a module with
 an empty object. "exclude" means: remove a module completely from a dependency graph.
 
+Browserify用語では、"ignore”はモジュールの定義を空のオブジェクトに差し替えるという意味になります。また、"exclude”は依存関係グラフからモジュールを完全に削除するという意味です。
+
 Another way to achieve many of the same goals as ignore and exclude is the
 "browser" field in package.json, which is covered elsewhere in this document.
+
+"ignore”や"exclude”と同じ目的を果たす別の方法として、package.json内の"browser”フィールドが上げられます。このフィールドについては本ドキュメントのどこかに詳しく紹介します。
 
 ### ignoring
 
@@ -2239,6 +2255,8 @@ Ignoring is an optimistic strategy designed to stub in an empty definition for
 node-specific modules that are only used in some codepaths. For example, if a
 module requires a library that only works in node but for a specific chunk of
 the code:
+
+"ignore”はコード内で限定的に利用されているNode専用モジュールを空の定義にする楽観的な戦略になります。Nodeでしか動作しないモジュールがライブラリ内で使われるものの、特定のコードででしか使わない様な場面で利用します。
 
 ``` js
 var fs = require('fs');
@@ -2266,23 +2284,33 @@ browserify already "ignores" the `'fs'` module by returning an empty object, but
 the `.write()` function here won't work in the browser without an extra step like
 a static analysis transform or a runtime storage fs abstraction.
 
+Browserifyは`'fs'`モジュールを空のオブジェクトとして扱うことで、”無視”しています。しかし、例にある`.write()`関数をブラウザで利用するのには静的解析を行いトランスフォームするか、`'fs'`の抽象化をランタイムストレージとして利用できるようにするなどの手順が必須になります。
+
 However, if we really want the `convert()` function but don't want to see
 `mkdirp` in the final bundle, we can ignore mkdirp with `b.ignore('mkdirp')` or
 `browserify --ignore mkdirp`. The code will still work in the browser if we
 don't call `write()` because `require('mkdirp')` won't throw an exception, just
 return an empty object.
 
+どうしても`convert()`関数を利用したいものの、最終的な結合時に`mkdirp`は要らないという場合に、`b.ignore('mkdirp')`や`browserify --ignore mkdirp`のようにすることで、`mkdirp`を無視することができます。`require('mkdirp')`は例外処理を行うこと無く、単純に空のオブジェクトを返すため、`write()`関数を呼びださなければ、このコードはブラウザでも動作します。
+
 Generally speaking it's not a good idea for modules that are primarily
 algorithmic (parsers, formatters) to do IO themselves but these tricks can let
 you use those modules in the browser anyway.
 
+大抵はモジュールの主な機能がアルゴリズム的(パーサーやフォーマッタ)な場合、IOを行うべきではないのですが、しかし、このトリックを使ってブラウザでモジュールを利用することができるようになります。
+
 To ignore `foo` on the command-line do:
+
+コマンドラインから`foo`を無視する場合には以下の様に実行します。
 
 ```
 browserify --ignore foo
 ```
 
 To ignore `foo` from the api with some bundle instance `b` do:
+
+`b`というインスタンスから`foo`というAPIを無視する場合は以下の様に記述します。
 
 ``` js
 b.ignore('foo')
@@ -2295,8 +2323,13 @@ output so that `require('modulename')` will fail at runtime. This is useful if
 we want to split things up into multiple bundles that will defer in a cascade to
 previously-defined `require()` definitions.
 
+実行時に`require('modulename')`を失敗させるために、モジュールを完全に削除する必要がある場面もあります。  
+これはモジュールを分割し、複数のバンドルにしながら、それ以前に定義した`require()`へカスケードできるようにする際に便利です。
+
 For example, if we have a vendored standalone bundle for jquery that we don't want to appear in
 the primary bundle:
+
+主なバンドル内には入れたくない、jQueryのスタンドアロン・バンドルがあるとします。
 
 ```
 $ npm install jquery
@@ -2305,12 +2338,16 @@ $ browserify -r jquery --standalone jquery > jquery-bundle.js
 
 then we want to just `require('jquery')` in a `main.js`:
 
+`main.js`内で`require('jquery’)`というようにしたいとします。
+
 ``` js
 var $ = require('jquery');
 $(window).click(function () { document.body.bgColor = 'red' });
 ```
 
 defering to the jquery dist bundle so that we can write:
+
+こうするとjQueryのバンドルのみを取り出し、次のように記述することができます。
 
 ``` html
 <script src="jquery-bundle.js"></script>
@@ -2320,17 +2357,23 @@ defering to the jquery dist bundle so that we can write:
 and not have the jquery definition show up in `bundle.js`, then while compiling
 the `main.js`, you can `--exclude jquery`:
 
+jQueryの定義を`bundle.js`内から排除する場合は、`main.js`をコンパイルする際に、`--exclude jquery`とします。
+
 ```
 browserify main.js --exclude jquery > bundle.js
 ```
 
 To exclude `foo` on the command-line do:
 
+コマンドラインから`foo`を無視する場合には以下の様に実行します。
+
 ```
 browserify --exclude foo
 ```
 
 To exclude `foo` from the api with some bundle instance `b` do:
+
+`b`というインスタンスから`foo`というAPIを無視する場合は以下の様に記述します。
 
 ``` js
 b.exclude('foo')
@@ -2345,17 +2388,25 @@ For modules that export their functionality with globals or AMD, there are
 packages that can help automatically convert these troublesome packages into
 something that browserify can understand.
 
+残念なことにいくつかのパッケージはNodeスタイルのCommonJSエキスポートを利用していない場合があります。グローバルやAMDで機能を公開している場合、それらのパッケージを自動的にBrowserifyが解釈できる形式に変更するためのパッケージが存在します。
+
 ## browserify-shim
 
 One way to automatically convert non-commonjs packages is with
 [browserify-shim](https://npmjs.org/package/browserify-shim).
 
+CommonJSではないパッケージを自動的に変換する1つの方法として[browserify-shim](https://npmjs.org/package/browserify-shim)があります。
+
 [browserify-shim](https://npmjs.org/package/browserify-shim) is loaded as a
 transform and also reads a `"browserify-shim"` field from `package.json`.
+
+[browserify-shim](https://npmjs.org/package/browserify-shim)は`package.json`内の`"browserify-shim"`フィールドから変換の情報を得ます。
 
 Suppose we need to use a troublesome third-party library we've placed in
 `./vendor/foo.js` that exports its functionality as a window global called
 `FOO`. We can set up our `package.json` with:
+
+`./vendor/foo.js`でそれらのちょっと面倒なサード・パーティライブラリを使う必要があるとします。そのライブラリは`FOO`というグローバルを通して機能を公開している場合、`package.json`に以下の様に記述します。
 
 ``` json
 {
@@ -2372,8 +2423,12 @@ and now when we `require('./vendor/foo.js')`, we get the `FOO` variable that
 `./vendor/foo.js` tried to put into the global scope, but that attempt was
 shimmed away into an isolated context to prevent global pollution.
 
+こうすると、`require('./vendor/foo.js')`とすると、`./vendor/foo.js`がグローバルスコープに入れ込もうとする`FOO`を隔離したコンテキストに追いやることができます。
+
 We could even use the [browser field](#browser-field) to make `require('foo')`
 work instead of always needing to use a relative path to load `./vendor/foo.js`:
+
+[browser フィールド](#browser-field)を使うと、`require('foo')`を`./vendor/foo.js`という相対パスで呼び出さずに済みます。
 
 ``` json
 {
@@ -2391,6 +2446,8 @@ work instead of always needing to use a relative path to load `./vendor/foo.js`:
 
 Now `require('foo')` will return the `FOO` export that `./vendor/foo.js` tried
 to place on the global scope.
+
+こうすることで、`require('foo')`は`./vendor/foo.js`がグローバルに公開する予定だった`FOO`を戻すようになります。
 
 # partitioning
 
