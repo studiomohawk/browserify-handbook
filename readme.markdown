@@ -2456,6 +2456,8 @@ map to a single bundled output file is perfectly adequate, particularly
 considering that bundling minimizes latency down to a single http request to
 fetch all the javascript assets.
 
+バンドルすることでJavaScriptのアセットすべてをリクエストできるのでレイテンシーのコストを最低限にできることを考えると、大抵はデフォルトの1つ以上のファイルを1つのファイルとして出力する方法を利用することが望ましいと言えます。
+
 However, sometimes this initial penalty is too high for parts of a website that
 are rarely or never used by most visitors such as an admin panel.
 This partitioning can be accomplished with the technique covered in the
@@ -2463,8 +2465,13 @@ This partitioning can be accomplished with the technique covered in the
 shared dependencies manually can be tedious for a large and fluid dependency
 graph.
 
+しかし、この初期コストは多くの訪問者が利用しない管理画面などのアセットを呼び出すと高くなりすぎることもあります。  
+[ignoreとexclude](#ignoring-and-excluding)のセクションで紹介した方法でバンドルの分割を行うことは可能ですが、手動で巨大な変更の多い依存関係グラフからモジュールを排除するのは手間がかかることもあります。
+
 Luckily, there are plugins that can automatically factor browserify output into
 separate bundle payloads.
+
+Browserifyの出力を分離するためのプラグインが存在します。
 
 ## factor-bundle
 
@@ -2473,11 +2480,17 @@ output into multiple bundle targets based on entry-point. For each entry-point,
 an entry-specific output file is built. Files that are needed by two or more of
 the entry files get factored out into a common bundle.
 
+[factor-bundle](https://www.npmjs.org/package/factor-bundle)はBrowserifyの出力をエントリポイントを元に複数のバンドルにすることができます。それぞれのエントリポイントに対して、エントリ専用の出力ファイルが生成されます。複数のエントリファイルで共通している部分については共有バンドルを生成します。
+
 For example, suppose we have 2 pages: /x and /y. Each page has an entry point,
 `x.js` for /x and `y.js` for /y.
 
+/xと/yという2つのページがあるとします。/xページには`x.js`、/yページには`y.js`というエントリポイントあるとします。
+
 We then generate page-specific bundles `bundle/x.js` and `bundle/y.js` with
 `bundle/common.js` containing the dependencies shared by both `x.js` and `y.js`:
+
+`bundle/x.js`、`bundle/y.js`というページ専用のバンドル生成し、`x.js`と`y.js`で共通する依存関係を含む`bundle/common.js`を生成することができます。
 
 ```
 browserify x.js y.js -p [ factor-bundle -o bundle/x.js -o bundle/y.js ] \
@@ -2486,12 +2499,16 @@ browserify x.js y.js -p [ factor-bundle -o bundle/x.js -o bundle/y.js ] \
 
 Now we can simply put 2 script tags on each page. On /x we would put:
 
+あとは単純に2つのファイルをそれぞれのページで呼び出すだけです。/xページであれば以下の様に記述します。
+
 ``` html
 <script src="/bundle/common.js"></script>
 <script src="/bundle/x.js"></script>
 ```
 
 and on page /y we would put:
+
+/yページには以下の様に記述します。
 
 ``` html
 <script src="/bundle/common.js"></script>
@@ -2502,13 +2519,19 @@ You could also load the bundles asynchronously with ajax or by inserting a
 script tag into the page dynamically but factor-bundle only concerns itself with
 generating the bundles, not with loading them.
 
+またはそれらのバンドルファイルをAjaxを使って非同期で呼び出すこともできますし、動的にスクリプトタグを挿入することもできます。factor-bundleはバンドルを生成することのみにフォーカスしているので、どう読み込まれるかについてはユーザ次第です。
+
 ## partition-bundle
 
 [partition-bundle](https://www.npmjs.org/package/partition-bundle) handles
 splitting output into multiple bundles like factor-bundle, but includes a
 built-in loader using a special `loadjs()` function.
 
+[partition-bundle](https://www.npmjs.org/package/partition-bundle)というモジュールでは、factor-bundleと同じように複数バンドルを出力するだけではなく、`loadjs()`関数をつかったビルドインのローダの機能も有しています。
+
 partition-bundle takes a json file that maps source files to bundle files:
+
+partition-bundleはJSONファイルを利用してソースファイルとバンドルファイルのマッピングを行います。
 
 ```
 {
@@ -2522,6 +2545,8 @@ Then partition-bundle is loaded as a plugin and the mapping file, output
 directory, and destination url path (required for dynamic loading) are passed
 in:
 
+partition-bundleをプラグインとして読み込み、マップするファイル、出力するディレクトリ、最終的に呼び出されるURLパス(動的読み込みのために必須)を渡します。
+
 ```
 browserify -p [ partition-bundle --map mapping.json \
   --output output/directory --url directory ]
@@ -2529,12 +2554,16 @@ browserify -p [ partition-bundle --map mapping.json \
 
 Now you can add:
 
+そして以下の様に記述します。
+
 ``` html
 <script src="entry.js"></script>
 ```
 
 to your page to load the entry file. From inside the entry file, you can
 dynamically load other bundles with a `loadjs()` function:
+
+こうするとエントリファイル内で`loadjs()`関数を使って他のバンドルを動的によびだすことができます。
 
 ``` js
 a.addEventListener('click', function() {
@@ -2548,6 +2577,8 @@ a.addEventListener('click', function() {
 
 Since version 5, browserify exposes its compiler pipeline as a
 [labeled-stream-splicer](https://www.npmjs.org/package/labeled-stream-splicer).
+
+
 
 This means that transformations can be added or removed directly into the
 internal pipeline. This pipeline provides a clean interface for advanced
