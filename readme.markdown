@@ -109,6 +109,9 @@ front or backend alike.
 
 You can install this handbook with npm, appropriately enough. Just do:
 
+本書は適切にnpmからインストールできます。
+(訳注: 翻訳版はnpmへの公開を予定していません)
+
 ```
 npm install -g browserify-handbook
 ```
@@ -116,6 +119,8 @@ npm install -g browserify-handbook
 Now you will have a `browserify-handbook` command that will open this readme
 file in your `$PAGER`. Otherwise, you may continue reading this document as you
 are presently doing.
+
+`$PAGER`でREADMEファイルを開く為のコマンド`browserify-handbook`を利用することができます。
 
 # node packaged modules
 
@@ -448,8 +453,7 @@ Browserifyがどのように動作するのかについてより詳しい情報�
 
 ## how node_modules works
 
-node has a clever algorithm for resolving modules that is unique among rival
-platforms.
+node has a clever algorithm for resolving modules that is unique among rival platforms.
 
 Instead of resolving packages from an array of system search paths like how
 `$PATH` works on the command line, node's mechanism is local by default.
@@ -2665,6 +2669,8 @@ handle at the appropriate label. Once you have a handle, you can `.push()`,
 `.pop()`, `.shift()`, `.unshift()`, and `.splice()` your own transform streams
 into the pipeline or remove existing transform streams.
 
+Browserifyのパイプラインにはフックできるラベルがそれぞれのフェーズに用意されています。適切なラベルは`.get(name)`が返す[labeled-stream-splicer](https://npmjs.org/package/labeled-stream-splicer)ハンドルから取得することができます。ハンドルを取得すると、`.push()`、`.pop()`、`.shift()`、`.unshift()`そして`.splice()`を用いて、トランスフォームストリームをパイプラインに挿入したり、既存のものを削除することができます。
+
 ### recorder
 
 The recorder is used to capture the inputs sent to the `deps` phase so that they
@@ -2672,13 +2678,19 @@ can be replayed on subsequent calls to `.bundle()`. Unlike in previous releases,
 v5 can generate bundle output multiple times. This is very handy for tools like
 watchify that re-bundle when a file has changed.
 
+レコーダーは`.bundle()`を実行した後に再利用するために、`deps`フェーズに送られた入力をキャプチャーします。バージョン5以前のリリースとは異なり、バージョン5ではバンドルの出力を複数回生成できます。watchifyなどのツールのようにファイルの変更と同時にバンドルを再度行うような場合に非常に便利です。
+
 ### deps
 
 The `deps` phase expects entry and `require()` files or objects as input and
 calls [module-deps](https://npmjs.org/package/module-deps) to generate a stream
 of json output for all of the files in the dependency graph.
 
+`deps`フェーズではエントリーファイルと`require()`ファイルまたはオブジェクトを元に、依存関係グラフ内のファイルすべての出力をJSONのストリームとして生成するのに[module-deps](https://npmjs.org/package/module-deps)を実行します。
+
 module-deps is invoked with some customizations here such as:
+
+moduleは以下のようなカスタマイズを行って実行されます。
 
 * setting up the browserify transform key for package.json
 * filtering out external, excluded, and ignored files
@@ -2689,10 +2701,18 @@ transform to detect and implement `process`, `Buffer`, `global`, `__dirname`,
 and `__filename`
 * setting up the list of node builtins which are shimmed by browserify
 
+* package.jsonにあるbrowserifyトランスフォームのセットアップ
+* external、exclude、ignoreファイルのフィルター
+* `.js`と`.json`のデフォルト拡張子を設定し、browserifyのコンストラクタの引数である`opts.extensions`のオプションも追加で設定します
+* `process`、`Buffer`、`global`、`__dirname`、`__filename`を検知し、実装を行うグローバルな[insert-module-globals](#insert-module-globals)トランスフォームの設定
+* browserifyが補完するNodeモジュールのセットアップ
+
 ### json
 
 This transform adds `module.exports=` in front of files with a `.json`
 extension.
+
+`.json`拡張子を持つファイルの前に、`module.exports=`を追加するトランスフォーム。
 
 ### unbom
 
@@ -2700,22 +2720,30 @@ This transform removes byte order markers, which are sometimes used by windows
 text editors to indicate the endianness of files. These markers are ignored by
 node, so browserify ignores them for compatibility.
 
+Windowsのテキストエディタで時折利用されるファイルのエンディアンネスを示すバイト・オーダー・マーカー(BOM)を削除するトランスフーム。
+
 ### syntax
 
 This transform checks for syntax errors using the
 [syntax-error](https://npmjs.org/package/syntax-error) package to give
 informative syntax errors with line and column numbers.
 
+[syntax-error](https://npmjs.org/package/syntax-error)パッケージを利用し、ラインナンバーやコラム値と有益なシンタックス・エラーを返すとランフフォーム。
+
 ### sort
 
 This phase uses [deps-sort](https://www.npmjs.org/package/deps-sort) to sort
 the rows written to it in order to make the bundles deterministic.
+
+[deps-sort](https://www.npmjs.org/package/deps-sort)を利用して、バンドル群の呼び出し順を確定するフェーズ。
 
 ### dedupe
 
 The transform at this phase uses dedupe information provided by
 [deps-sort](https://www.npmjs.org/package/deps-sort) in the `sort` phase to
 remove files that have duplicate contents.
+
+[deps-sort](https://www.npmjs.org/package/deps-sort)の`sort`から供給されるdedupe情報を利用して、重複するコンテンツであるファイルを削除するトランスフォーム。
 
 ### label
 
@@ -2725,9 +2753,13 @@ and inflate the bundle size into integer-based IDs.
 The `label` phase will also normalize path names based on the `opts.basedir` or
 `process.cwd()` to avoid exposing system path information.
 
+このフェーズではシステムパス情報をさらしてしまう可能性があり、かつバンドルのサイズを大きくしてしまうファイルを元にしたIDを数値ベースのIDに変換します。
+
 ### emit-deps
 
 This phase emits a `'dep'` event for each row after the `label` phase.
+
+`label`フェーズの後、各列で`'dep'`イベントを発火するフェーズ。
 
 ### debug
 
@@ -2735,16 +2767,22 @@ If `opts.debug` was given to the `browserify()` constructor, this phase will
 transform input to add `sourceRoot` and `sourceFile` properties which are used
 by [browser-pack](https://npmjs.org/package/browser-pack) in the `pack` phase.
 
+`browserify()`コンストラクタに`opts.debug`が渡されると、`pack`フェーズの[browser-pack](https://npmjs.org/package/browser-pack)で利用する、`sourceRoot`と`sourceFile`プロパティを入力に挿入します。
+
 ### pack
 
 This phase converts rows with `'id'` and `'source'` parameters as input (among
 others) and generates the concatenated javascript bundle as output
 using [browser-pack](https://npmjs.org/package/browser-pack).
 
+このフェーズでは`'id'`と`'source'`のある列を入力(など)に変換し、[browser-pack](https://npmjs.org/package/browser-pack)を用いて、結合されたJavaScriptバンドルを生成します。
+
 ### wrap
 
 This is an empty phase at the end where you can easily tack on custom post
 transformations without interfering with existing mechanics.
+
+大本のメカニズムを阻害することなくカスタムのポスト・トランスフォームを簡単に入れこむために、全体プロセスの一番最後に挿入される空のフェーズ。
 
 ## browser-unpack
 
@@ -2752,10 +2790,16 @@ transformations without interfering with existing mechanics.
 bundle file back into a format very similar to the output of
 [module-deps](https://npmjs.org/package/module-deps).
 
+[browser-unpack](https://npmjs.org/package/browser-unpack)はコンパイルされたバンドルファイルを、[module-deps](https://npmjs.org/package/module-deps)の出力によく似たフォーマットに戻します。
+
 This is very handy if you need to inspect or transform a bundle that has already
 been compiled.
 
+すでにコンパイルされているバンドルを調査したりトランスフォームしたりするのに非常に便利です。
+
 For example:
+
+例えば、
 
 ``` js
 $ browserify src/main.js | browser-unpack
@@ -2772,16 +2816,24 @@ This decomposition is needed by tools such as
 [factor-bundle](https://www.npmjs.org/package/factor-bundle)
 and [bundle-collapser](https://www.npmjs.org/package/bundle-collapser).
 
+このような分解は[factor-bundle](https://www.npmjs.org/package/factor-bundle)や[bundle-collapser](https://www.npmjs.org/package/bundle-collapser)などのようなツールで必須となっています。
+
 # plugins
 
 When loaded, plugins have access to the browserify instance itself.
+
+プラグインは呼び出されるとbrowserifyインスタンスそのものへのアクセスを行うことができます。
 
 ## using plugins
 
 Plugins should be used sparingly and only in cases where a transform or global
 transform is not powerful enough to perform the desired functionality.
 
+プラグインは慎重に、トランスフォームやグローバル・トランスフォームが付与しようとしている機能に対して十分でない場合にのみ利用するべきです。
+
 You can load a plugin with `-p` on the command-line:
+
+コマンドラインでは`-p`オプションでプラグインを呼び出します。
 
 ```
 $ browserify main.js -p foo > bundle.js
@@ -2791,8 +2843,12 @@ would load a plugin called `foo`. `foo` is resolved with `require()`, so to load
 a local file as a plugin, preface the path with a `./` and to load a plugin from
 `node_modules/foo`, just do `-p foo`.
 
+この例では`foo`というプラグインが呼ばれることになります。`foo`は`require()`を使って解決されるため、ローカルにあるファイルをプラグインとして呼び出す為には`./`をパスの前に、`node_modules/foo`から呼び出す場合は、単に`-p foo`とします。
+
 You can pass options to plugins with square brackets around the entire plugin
 expression, including the plugin name as the first argument:
+
+プラグイン名を第一引数として、プラグインの周りに角カッコで囲むことでプラグインに対してオプションを渡すことができます。
 
 ```
 $ browserify one.js two.js \
@@ -2803,16 +2859,22 @@ $ browserify one.js two.js \
 This command-line syntax is parsed by the
 [subarg](https://npmjs.org/package/subarg) package.
 
+このコマンドライン・シンタックスは[subarg](https://npmjs.org/package/subarg)パッケージでパースされます。
+
 To see a list of browserify plugins, browse npm for packages with the keyword
 "browserify-plugin": http://npmjs.org/browse/keyword/browserify-plugin
+
+Browserifyプラグインのリストは、npmにてキーワード"browserify-plugin"(http://npmjs.org/browse/keyword/browserify-plugin)で検索できます。
 
 ## authoring plugins
 
 To author a plugin, write a package that exports a single function that will
 receive a bundle instance and options object as arguments:
 
+プラグインをオーサリングするには、バンドル・インスタンスとオプションオブジェクトを引数として受け取れる単一の関数をエキスポートするパッケージを書いてください。
+
 ``` js
-// example plugin
+// Plugin例
 
 module.exports = function (b, opts) {
   // ...
@@ -2822,3 +2884,6 @@ module.exports = function (b, opts) {
 Plugins operate on the bundle instance `b` directly by listening for events or
 splicing transforms into the pipeline. Plugins should not overwrite bundle
 methods unless they have a very good reason.
+
+プラグインは、`b`というバンドル・インスタンスをイベントやトランスフォームをパイプラインにスプライスして直接操作します。プラグインはよほどいい理由がない限りバンドルメソッドを上書きするべきではありません。
+
