@@ -455,16 +455,24 @@ Browserifyがどのように動作するのかについてより詳しい情報�
 
 node has a clever algorithm for resolving modules that is unique among rival platforms.
 
+Nodeはモジュールの解決を他の競合プラットフォームと比べてユニークな、賢いアルゴリズムを用いて行います。
+
 Instead of resolving packages from an array of system search paths like how
 `$PATH` works on the command line, node's mechanism is local by default.
+
+コマンドライン内の`$PATH`のようにパッケージの解決をシステム的にパスを検索して行うかわりに、Nodeではローカルがデフォルトになっています。
 
 If you `require('./foo.js')` from `/beep/boop/bar.js`, node will
 look for `./foo.js` in `/beep/boop/foo.js`. Paths that start with a `./` or
 `../` are always local to the file that calls `require()`.
 
+`/beep/boop/bar.js`から`require('./foo.js')`とした場合、Nodeは`./foo.js`を`/beep/boop/foo.js`から見つけ出そうとします。`./`や`../`から始まるパスは`require()`が実行されるファイルのローカルになります。
+
 If however you require a non-relative name such as `require('xyz')` from
 `/beep/boop/foo.js`, node searches these paths in order, stopping at the first
 match and raising an error if nothing is found:
+
+相対パスではなく、`/beep/boop/foo.js`から`require('xyz')`のように指定した場合、Nodeは以下の順にパスをサーチし、最初に見つかった時点で検索を終了し、見つからなければエラーを返します。
 
 ```
 /beep/boop/node_modules/xyz
@@ -476,8 +484,12 @@ For each `xyz` directory that exists, node will first look for a
 `xyz/package.json` to see if a `"main"` field exists. The `"main"` field defines
 which file should take charge if you `require()` the directory path.
 
+存在する`xyz`ディレクトリ内でNodeはまず`xyz/package.json`から`"main"`フィールドが存在するかを見つけ出そうとします。`"main"`はディレクトリパスが`require()`された場合にどのファイルが主となるのかを指定します。
+
 For example, if `/beep/node_modules/xyz` is the first match and
 `/beep/node_modules/xyz/package.json` has:
+
+`/beep/node_modules/xyz`がマッチしたとして、`/beep/node_modules/xyz/package.json`が以下だった場合、
 
 ```
 {
@@ -490,7 +502,11 @@ For example, if `/beep/node_modules/xyz` is the first match and
 then the exports from `/beep/node_modules/xyz/lib/abc.js` will be returned by
 `require('xyz')`.
 
+`/beep/node_modules/xyz/lib/abc.js`で公開したものが`require('xyz')`の戻り値となります。
+
 If there is no `package.json` or no `"main"` field, `index.js` is assumed:
+
+`package.json`や、`"main"`がない場合は、`index.js`が主となります。
 
 ```
 /beep/node_modules/xyz/index.js
@@ -498,6 +514,8 @@ If there is no `package.json` or no `"main"` field, `index.js` is assumed:
 
 If you need to, you can reach into a package to pick out a particular file. For
 example, to load the `lib/clone.js` file from the `dat` package, just do:
+
+パッケージ内の特定のファイルにアクセスすることもできます。例えば、`dat`パッケージ内の`lib/clone.js`のみを読み込む場合は、単純に以下のようにするだけです。
 
 ```
 var clone = require('dat/lib/clone.js')
@@ -508,29 +526,30 @@ directory hierarchy, then the `lib/clone.js` file will be resolved from there.
 This `require('dat/lib/clone.js')` approach will work from any location where
 you can `require('dat')`.
 
-node also has a mechanism for searching an array of paths, but this mechanism is
-deprecated and you should be using `node_modules/` unless you have a very good
-reason not to.
+再帰的な`node_modules`の解決はまず`dat`パッケージをディレクトリ階層から見つけ出し、それから`lib/clone.js`ファイルを発見します。この`require('dat/lib/clone.js')`というアプローチは`require('dat')`できる全ての場所から利用することができます。
+
+node also has a mechanism for searching an array of paths, but this mechanism is deprecated and you should be using `node_modules/` unless you have a very good reason not to.
+
+Nodeにもパスの配列を検索するメカニズムがありますが、この機能は廃止予定であり、よほどいい理由がない限り、`node_modules/`を利用するべきです。
 
 The great thing about node's algorithm and how npm installs packages is that you
 can never have a version conflict, unlike most every other platform. npm
 installs the dependencies of each package into `node_modules`.
 
-Each library gets its own local `node_modules/` directory where its dependencies
-are stored and each dependency's dependencies has its own `node_modules/`
-directory, recursively all the way down.
+Nodeのアルゴリズムやnpmパッケージのインストール方法の最大の利点は他のプラットフォームと異なり、npmは各パッケージの依存を`node_modules`にインストールするため、バージョンのコンフリクトが絶対に発生しない点にあります。
 
-This means that packages can successfully use different versions of libraries in
-the same application, which greatly decreases the coordination overhead
-necessary to iterate on APIs. This feature is very important for an ecosystem
-like npm where there is no central authority to manage how packages are
-published and organized. Everyone may simply publish as they see fit and not
-worry about how their dependency version choices might impact other dependencies
-included in the same application.
+Each library gets its own local `node_modules/` directory where its dependencies are stored and each dependency's dependencies has its own `node_modules/` directory, recursively all the way down.
 
-You can leverage how `node_modules/` works to organize your own local
-application modules too. See the `avoiding ../../../../../../..` section for
-more.
+各ライブラリはそれぞれのローカル`node_modules/`ディレクトリを持ち、その中に依存は保持されます。そして各依存の依存も同じように`node_modules/`を持っています。
+
+This means that packages can successfully use different versions of libraries in the same application, which greatly decreases the coordination overhead necessary to iterate on APIs. This feature is very important for an ecosystem like npm where there is no central authority to manage how packages are published and organized. Everyone may simply publish as they see fit and not
+worry about how their dependency version choices might impact other dependencies included in the same application.
+
+これはパッケージは異なるバージョンのライブラリを同じアプリケーション内で利用することができることを忌みます。APIのイテレーションを行うのに必須となる調整コストを最小に抑えることにも繋がります。この機能はnpmのようなパッケージの公開や整理を中央集権的な機構を用いないエコシステムを持つ場合に非常に重要なものです。こうすることでだれでも簡単に依存関係の心配をすることなく、パッケージを公開できるようになるわけです。
+
+You can leverage how `node_modules/` works to organize your own local application modules too. See the `avoiding ../../../../../../..` section for more.
+
+`node_modules/`がどのように動作するかを知ることで、自分自身のアプリケーションモジュールを整理することもできます。`avoiding ../../../../../../..`のセクションに詳しく解説しているので参考にしてください。
 
 ## why concatenate
 
