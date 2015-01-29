@@ -3,7 +3,7 @@
 This document covers how to use [browserify](http://browserify.org) to build
 modular applications.
 
-本ドキュメントでは[browserify](http://browserify.org)を使った、モジュール・アプリケーションの作り方について紹介します。
+このドキュメントでは[browserify](http://browserify.org)を使った、モジュール・アプリケーションの作り方について紹介します。
 
 [![cc-by-3.0](http://i.creativecommons.org/l/by/3.0/80x15.png)](http://creativecommons.org/licenses/by/3.0/)
 
@@ -17,13 +17,13 @@ You can use browserify to organize your code and use third-party libraries even
 if you don't use [node](http://nodejs.org) itself in any other capacity except
 for bundling and installing packages with npm.
 
-npmを使ってパッケージのインストール、またはバンドルする以外は[Node](http://nodejs.org)そのものを利用していなくても、browserifyを利用することで、自分のコードや第三者が作成したライブラリを構造化することができるようになります。
+npmを使ってパッケージをバンドルおよびインストールする以外は、たとえ[Node](http://nodejs.org)そのものを利用していなくても、browserifyを利用することで、自分のコードや第三者が作成したライブラリを構造化することができるようになります。
 
 The module system that browserify uses is the same as node, so
 packages published to [npm](https://npmjs.org) that were originally intended for
 use in node but not browsers will work just fine in the browser too.
 
-browserifyのモジュール・システムはNodeのそれと同じです。そのため、[npm](https://npmjs.org)で公開されているパッケージで元々はブラウザでではなく、Node.jsで利用されることを想定しているものであっても、ブラウザ上でも動作させることができます。
+browserifyのモジュール・システムはNodeのものと同じです。そのため、[npm](https://npmjs.org)で公開されているパッケージで元々はブラウザでではなく、Node.jsで利用されることを想定しているものであっても、ブラウザ上でも動作させることができます。
 
 Increasingly, people are publishing modules to npm which are intentionally
 designed to work in both node and in the browser using browserify and many
@@ -32,7 +32,7 @@ packages on npm are intended for use in just the browser.
 front or backend alike.
 
 多くの人がNodeとブラウザの両方で動作するモジュールをnpmで公開し初めていたり、npm上にブラウザでしか動作しないパッケージも増えてきています。
-それはフロントエンドも、バックエンドも関係なく[npmはすべてのJavaScriptのためにあります](http://maxogden.com/node-packaged-modules.html)。
+それはフロントエンドも、バックエンドも関係なく[npmはすべてのJavaScriptのためにあるからです](http://maxogden.com/node-packaged-modules.html)。
 
 # table of contents
 
